@@ -1,0 +1,72 @@
+services:
+
+  frontend:
+
+    container_name: vigilo_frontend
+
+    build:
+      context: ./VigiloFrontend
+
+    ports:
+      - "4202:4202"
+
+    volumes:
+      - ./VigiloFrontend:/app
+      - /app/node_modules
+
+    depends_on:
+      - backend
+
+
+
+  backend:
+
+    container_name: vigilo_backend
+
+    build:
+      context: ./VigiloBackend
+
+    ports:
+      - "3000:3000"
+
+    volumes:
+      - ./VigiloBackend:/app
+      - /app/node_modules
+
+    env_file:
+      - ./VigiloBackend/src/config/.env
+
+    depends_on:
+      - database
+
+
+
+  database:
+
+    container_name: vigilo_postgres
+
+    image: postgres:16
+
+    environment:
+
+      POSTGRES_USER: vigilo_user
+
+      POSTGRES_PASSWORD: vigilo_password
+
+      POSTGRES_DB: vigilo_db
+
+
+    ports:
+
+      - "5432:5432"
+
+
+    volumes:
+
+      - postgres_data:/var/lib/postgresql/data
+
+
+
+volumes:
+
+  postgres_data:

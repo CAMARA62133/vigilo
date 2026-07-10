@@ -1,0 +1,1364 @@
+<!-- agents.html -->
+<div class="min-h-screen bg-slate-50 dark:bg-slate-900">
+  <div class="container mx-auto px-3 sm:px-4 py-4 sm:py-6">
+    <main class="flex-1 p-8">
+
+      <!-- Header Section -->
+      <div
+        class="bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 shadow-sm mb-6 overflow-hidden"
+      >
+        <div class="px-6 py-5">
+          <div class="flex items-center gap-3 mb-1">
+            <div
+              class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center shadow-md"
+            >
+              <i class="fas fa-user-shield text-white text-lg"></i>
+            </div>
+            <div>
+              <h1 class="text-xl font-bold text-slate-800 dark:text-white">Agents de Sécurité</h1>
+              <p class="text-sm text-slate-500 dark:text-slate-400">{{ totalAgentsCount() }} agents enregistrés</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 px-6 pb-5">
+          <!-- Total Agents -->
+          <div
+            class="group bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-3 hover:border-indigo-200 dark:hover:border-indigo-700 hover:shadow-md transition-all duration-200 cursor-default"
+          >
+            <div class="flex items-center gap-3">
+              <div
+                class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-100 to-indigo-50 dark:from-indigo-900/30 dark:to-indigo-800/30 flex items-center justify-center group-hover:scale-110 transition-transform duration-200"
+              >
+                <i class="fas fa-users text-indigo-600 dark:text-indigo-400 text-base"></i>
+              </div>
+              <div>
+                <p class="text-xs text-slate-400 dark:text-slate-500 font-medium uppercase tracking-wider">Total</p>
+                <p class="text-xl font-bold text-slate-800 dark:text-white">{{ totalAgentsCount() }}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Disponibles -->
+          <div
+            class="group bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-3 hover:border-emerald-200 dark:hover:border-emerald-700 hover:shadow-md transition-all duration-200 cursor-default"
+          >
+            <div class="flex items-center gap-3">
+              <div
+                class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-100 to-emerald-50 dark:from-emerald-900/30 dark:to-emerald-800/30 flex items-center justify-center group-hover:scale-110 transition-transform duration-200"
+              >
+                <i class="fas fa-check-circle text-emerald-600 dark:text-emerald-400 text-base"></i>
+              </div>
+              <div>
+                <p class="text-xs text-slate-400 dark:text-slate-500 font-medium uppercase tracking-wider">Disponibles</p>
+                <p class="text-xl font-bold text-slate-800 dark:text-white">{{ idleAgentsCount() }}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- En mission -->
+          <div
+            class="group bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-3 hover:border-amber-200 dark:hover:border-amber-700 hover:shadow-md transition-all duration-200 cursor-default"
+          >
+            <div class="flex items-center gap-3">
+              <div
+                class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-100 to-amber-50 dark:from-amber-900/30 dark:to-amber-800/30 flex items-center justify-center group-hover:scale-110 transition-transform duration-200"
+              >
+                <i class="fas fa-briefcase text-amber-600 dark:text-amber-400 text-base"></i>
+              </div>
+              <div>
+                <p class="text-xs text-slate-400 dark:text-slate-500 font-medium uppercase tracking-wider">En mission</p>
+                <p class="text-xl font-bold text-slate-800 dark:text-white">{{ workingAgentsCount() }}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Contrats CDI -->
+          <div
+            class="group bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-3 hover:border-cyan-200 dark:hover:border-cyan-700 hover:shadow-md transition-all duration-200 cursor-default"
+          >
+            <div class="flex items-center gap-3">
+              <div
+                class="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-100 to-cyan-50 dark:from-cyan-900/30 dark:to-cyan-800/30 flex items-center justify-center group-hover:scale-110 transition-transform duration-200"
+              >
+                <i class="fas fa-file-contract text-cyan-600 dark:text-cyan-400 text-base"></i>
+              </div>
+              <div>
+                <p class="text-xs text-slate-400 dark:text-slate-500 font-medium uppercase tracking-wider">Contrats CDI</p>
+                <p class="text-xl font-bold text-slate-800 dark:text-white">{{ cdiAgentsCount() }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabs Filter -->
+      <div class="flex flex-wrap gap-1.5 mb-6 pb-2 border-b border-slate-200 dark:border-slate-700">
+        <button
+          (click)="setTab('all')"
+          class="px-4 py-1.5 text-sm font-medium rounded-lg transition-all duration-200"
+          [ngClass]="
+            currentTab() === 'all'
+              ? 'bg-indigo-600 text-white shadow-md'
+              : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+          "
+        >
+          <i class="fas fa-th-large mr-1.5 text-xs"></i>
+          Tous
+        </button>
+        <button
+          (click)="setTab('CDI')"
+          class="px-4 py-1.5 text-sm font-medium rounded-lg transition-all duration-200"
+          [ngClass]="
+            currentTab() === 'CDI'
+              ? 'bg-indigo-600 text-white shadow-md'
+              : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+          "
+        >
+          <i class="fas fa-infinity mr-1.5 text-xs"></i>
+          CDI
+        </button>
+        <button
+          (click)="setTab('CDD')"
+          class="px-4 py-1.5 text-sm font-medium rounded-lg transition-all duration-200"
+          [ngClass]="
+            currentTab() === 'CDD'
+              ? 'bg-indigo-600 text-white shadow-md'
+              : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+          "
+        >
+          <i class="fas fa-calendar-week mr-1.5 text-xs"></i>
+          CDD
+        </button>
+        <button
+          (click)="setTab('VACATAIRE')"
+          class="px-4 py-1.5 text-sm font-medium rounded-lg transition-all duration-200"
+          [ngClass]="
+            currentTab() === 'VACATAIRE'
+              ? 'bg-indigo-600 text-white shadow-md'
+              : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+          "
+        >
+          <i class="fas fa-user-clock mr-1.5 text-xs"></i>
+          Vacataire
+        </button>
+        <button
+          (click)="setTab('STAGIAIRE')"
+          class="px-4 py-1.5 text-sm font-medium rounded-lg transition-all duration-200"
+          [ngClass]="
+            currentTab() === 'STAGIAIRE'
+              ? 'bg-indigo-600 text-white shadow-md'
+              : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+          "
+        >
+          <i class="fas fa-graduation-cap mr-1.5 text-xs"></i>
+          Stagiaire
+        </button>
+      </div>
+
+      <!-- Search & Add + View Toggle -->
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
+        <div class="flex-1 max-w-md">
+          <div class="relative">
+            <i
+              class="fa-solid fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 text-sm"
+            ></i>
+            <input
+              type="text"
+              placeholder="Rechercher par nom, email ou matricule..."
+              [(ngModel)]="searchQuery"
+              (input)="onSearch()"
+              class="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-800 dark:text-white focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 dark:focus:ring-indigo-900/30 outline-none transition-all duration-200 placeholder:text-slate-400 dark:placeholder:text-slate-500"
+            />
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <!-- View Toggle Buttons -->
+          <div class="flex bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-1 shadow-sm">
+            <button
+              (click)="setViewMode('card')"
+              [class]="
+                viewMode() === 'card'
+                  ? 'bg-indigo-600 text-white shadow-sm'
+                  : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700'
+              "
+              class="px-3 py-1.5 rounded-md text-xs font-medium transition-all duration-200 flex items-center gap-1.5"
+              title="Vue Cartes"
+            >
+              <i class="fas fa-th-large text-xs"></i>
+              <span class="hidden sm:inline">Cartes</span>
+            </button>
+            <button
+              (click)="setViewMode('list')"
+              [class]="
+                viewMode() === 'list'
+                  ? 'bg-indigo-600 text-white shadow-sm'
+                  : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700'
+              "
+              class="px-3 py-1.5 rounded-md text-xs font-medium transition-all duration-200 flex items-center gap-1.5"
+              title="Vue Liste"
+            >
+              <i class="fas fa-list text-xs"></i>
+              <span class="hidden sm:inline">Liste</span>
+            </button>
+          </div>
+
+          <button
+            (click)="openCreateModal()"
+            class="px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-indigo-500 text-white rounded-xl text-sm font-semibold hover:from-indigo-700 hover:to-indigo-600 transition-all duration-200 shadow-md hover:shadow-lg flex items-center justify-center gap-2 whitespace-nowrap"
+          >
+            <i class="fa-solid fa-plus text-xs"></i>
+            <span>Nouvel Agent</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Résultat de recherche -->
+      @if (searchQuery()) {
+        <div
+          class="flex items-center justify-between bg-indigo-50/50 dark:bg-indigo-900/20 rounded-xl px-4 py-2 mb-4 border border-indigo-100 dark:border-indigo-800/30"
+        >
+          <div class="flex items-center gap-2">
+            <i class="fas fa-search text-indigo-500 dark:text-indigo-400 text-sm"></i>
+            <span class="text-sm text-slate-700 dark:text-slate-300">
+              <span class="font-semibold">{{ searchedAgents().length }}</span> résultat(s) pour
+              <span class="font-semibold text-indigo-600 dark:text-indigo-400">"{{ searchQuery() }}"</span>
+            </span>
+          </div>
+          <button
+            (click)="searchQuery.set(''); onSearch()"
+            class="text-xs text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+          >
+            <i class="fas fa-times mr-1"></i>
+            Effacer
+          </button>
+        </div>
+      }
+
+      @if (isLoading()) {
+        <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-12 text-center">
+          <div
+            class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-indigo-50 dark:bg-indigo-900/30 mb-3"
+          >
+            <i class="fa-solid fa-spinner fa-spin text-xl text-indigo-500 dark:text-indigo-400"></i>
+          </div>
+          <p class="text-slate-500 dark:text-slate-400 text-sm">Chargement des agents...</p>
+        </div>
+      } @else {
+        <!-- VUE CARTES -->
+        @if (viewMode() === 'card') {
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+            @for (agent of paginatedAgents(); track agent.id) {
+              <div
+                class="group relative bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-indigo-200 dark:hover:border-indigo-600 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col overflow-hidden"
+              >
+                <!-- Badge contrat en haut à droite -->
+                <div class="absolute top-3 right-3 z-10">
+                  <span
+                    class="inline-flex items-center px-2 py-0.5 rounded-lg text-[9px] font-bold shadow-sm"
+                    [ngClass]="getContratStyles(agent.contractType)"
+                  >
+                    <i class="fas fa-file-contract mr-1 text-[8px]"></i>
+                    {{ getContratLabel(agent.contractType) }}
+                  </span>
+                </div>
+
+                <!-- Contenu principal -->
+                <div class="p-4">
+                  <!-- Profil -->
+                  <div class="flex items-center gap-3 mb-3">
+                    <div class="relative">
+                      @if (agent.user?.photoProfile) {
+                        <img
+                          [src]="getPhotoUrl(agent.user.photoProfile)"
+                          alt="Avatar"
+                          class="w-14 h-14 rounded-xl object-cover border-2 border-white dark:border-slate-700 shadow-md group-hover:border-indigo-100 dark:group-hover:border-indigo-700 transition-all duration-300"
+                        />
+                      } @else {
+                        <div
+                          class="w-14 h-14 rounded-xl bg-gradient-to-br from-indigo-100 to-blue-100 dark:from-indigo-900/30 dark:to-blue-900/30 flex items-center justify-center font-bold text-indigo-600 dark:text-indigo-400 text-lg border-2 border-white dark:border-slate-700 shadow-md group-hover:border-indigo-100 dark:group-hover:border-indigo-700 transition-all duration-300"
+                        >
+                          {{ getAgentInitials(agent.user?.fullname) }}
+                        </div>
+                      }
+
+                      <!-- Statut en ligne -->
+                      <div class="absolute -bottom-1 -right-1">
+                        <div
+                          class="w-4 h-4 rounded-full border-2 border-white dark:border-slate-700 shadow-sm flex items-center justify-center"
+                          [ngClass]="agent.status === 'idle' ? 'bg-emerald-500' : 'bg-amber-500'"
+                        >
+                          <i
+                            class="fas text-[6px] text-white"
+                            [ngClass]="agent.status === 'idle' ? 'fa-check' : 'fa-briefcase'"
+                          ></i>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="flex-1 min-w-0">
+                      <h3
+                        class="text-sm font-bold text-slate-800 dark:text-white truncate group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors duration-200"
+                      >
+                        {{ agent.user?.fullname }}
+                      </h3>
+                      <div class="flex items-center gap-1 mt-0.5">
+                        <i class="fas fa-id-badge text-[9px] text-slate-400 dark:text-slate-500"></i>
+                        <p class="text-[10px] text-slate-500 dark:text-slate-400 font-mono">{{ agent.matricule }}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Score -->
+                  <div class="mb-3">
+                    <div class="flex items-center justify-between">
+                      <span class="text-xs text-slate-500 dark:text-slate-400">Score</span>
+                      <span class="text-sm font-bold text-emerald-600 dark:text-emerald-400">Excellent (94)</span>
+                    </div>
+                    <div class="w-full h-1.5 bg-slate-100 dark:bg-slate-700 rounded-full mt-1">
+                      <div class="h-full bg-emerald-500 rounded-full" style="width: 94%"></div>
+                    </div>
+                  </div>
+
+                  <!-- Informations de contact -->
+                  <div class="space-y-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                    <div class="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400">
+                      <div
+                        class="w-6 h-6 rounded-md bg-indigo-50 dark:bg-indigo-900/30 flex items-center justify-center flex-shrink-0"
+                      >
+                        <i class="fas fa-envelope text-[9px] text-indigo-500 dark:text-indigo-400"></i>
+                      </div>
+                      <span class="truncate">{{ agent.user?.email }}</span>
+                    </div>
+
+                    <div class="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400">
+                      <div
+                        class="w-6 h-6 rounded-md bg-green-50 dark:bg-green-900/30 flex items-center justify-center flex-shrink-0"
+                      >
+                        <i class="fas fa-phone text-[9px] text-green-500 dark:text-green-400"></i>
+                      </div>
+                      <span>{{ agent.user?.phone || 'Non renseigné' }}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Footer avec actions -->
+                <div
+                  class="mt-auto bg-slate-50/50 dark:bg-slate-900/30 px-4 py-2.5 border-t border-slate-100 dark:border-slate-700 flex items-center justify-between"
+                >
+                  <!-- Statut -->
+                  <div class="flex items-center gap-1.5">
+                    <div
+                      class="w-1.5 h-1.5 rounded-full"
+                      [ngClass]="
+                        agent.status === 'idle' ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'
+                      "
+                    ></div>
+                    <span
+                      class="text-[10px] font-medium"
+                      [ngClass]="agent.status === 'idle' ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400'"
+                    >
+                      {{ getStatusLabel(agent.status) }}
+                    </span>
+                  </div>
+
+                  <!-- Boutons d'action -->
+                  <div class="flex gap-1.5">
+                    <button
+                      (click)="viewAgentDetails(agent)"
+                      class="p-1.5 text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-lg transition-all duration-200"
+                      title="Voir les détails"
+                    >
+                      <i class="fas fa-eye text-xs"></i>
+                    </button>
+                    <button
+                      (click)="openEditModal(agent)"
+                      class="p-1.5 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-lg transition-all duration-200"
+                      title="Modifier"
+                    >
+                      <i class="fas fa-edit text-xs"></i>
+                    </button>
+                    <button
+                      (click)="toggleActive(agent)"
+                      class="p-1.5 text-slate-500 dark:text-slate-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-all duration-200"
+                      title="{{
+                        agent.user?.status === 'active'
+                          ? 'Verrouiller le compte'
+                          : 'Déverrouiller le compte'
+                      }}"
+                    >
+                      <i
+                        class="fas"
+                        [ngClass]="agent.user?.status === 'active' ? 'fa-lock' : 'fa-lock-open'"
+                      ></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            } @empty {
+              <div class="col-span-full">
+                <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-12 text-center">
+                  <div
+                    class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-700 mb-3"
+                  >
+                    <i class="fa-solid fa-users-slash text-2xl text-slate-400 dark:text-slate-500"></i>
+                  </div>
+                  <h3 class="text-sm font-medium text-slate-800 dark:text-white mb-1">Aucun agent trouvé</h3>
+                  <p class="text-xs text-slate-500 dark:text-slate-400">Aucun agent ne correspond à vos critères</p>
+                </div>
+              </div>
+            }
+          </div>
+        }
+
+        <!-- VUE LISTE (TABLEAU) -->
+        @if (viewMode() === 'list') {
+          <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+            <!-- Version desktop -->
+            <div class="hidden lg:block overflow-x-auto">
+              <table class="w-full">
+                <thead class="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-700">
+                  <tr>
+                    <th class="px-4 py-3 text-left">
+                      <button
+                        (click)="sortBy('fullname')"
+                        class="flex items-center gap-1 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase hover:text-indigo-600 dark:hover:text-indigo-400"
+                      >
+                        Agent
+                        <i class="fa-solid fa-arrow-up-wide-short text-[9px]"></i>
+                      </button>
+                    </th>
+                    <th class="px-4 py-3 text-left">
+                      <button
+                        (click)="sortBy('matricule')"
+                        class="flex items-center gap-1 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase hover:text-indigo-600 dark:hover:text-indigo-400"
+                      >
+                        Matricule
+                        <i class="fa-solid fa-arrow-up-wide-short text-[9px]"></i>
+                      </button>
+                    </th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">
+                      Contact
+                    </th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">
+                      Site
+                    </th>
+                    <th class="px-4 py-3 text-left">
+                      <button
+                        (click)="sortBy('score')"
+                        class="flex items-center gap-1 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase hover:text-indigo-600 dark:hover:text-indigo-400"
+                      >
+                        Score
+                        <i class="fa-solid fa-arrow-up-wide-short text-[9px]"></i>
+                      </button>
+                    </th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">
+                      Statut
+                    </th>
+                    <th class="px-4 py-3 text-right text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
+                  @for (agent of paginatedAgents(); track agent.id) {
+                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition">
+                      <td class="px-4 py-3">
+                        <div class="flex items-center gap-2">
+                          <div
+                            class="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center flex-shrink-0"
+                          >
+                            @if (agent.user?.photoProfile) {
+                              <img
+                                [src]="getPhotoUrl(agent.user.photoProfile)"
+                                class="w-full h-full rounded-full object-cover"
+                              />
+                            } @else {
+                              <i class="fa-solid fa-user text-indigo-600 dark:text-indigo-400 text-xs"></i>
+                            }
+                          </div>
+                          <div>
+                            <p class="text-sm font-medium text-slate-800 dark:text-white">{{ agent.user?.fullname }}</p>
+                            
+                          </div>
+                        </div>
+                      </td>
+                      <td class="px-4 py-3">
+                        <span class="text-xs font-mono text-slate-600 dark:text-slate-400">{{ agent.matricule }}</span>
+                      </td>
+                      <td class="px-4 py-3">
+                        <div>
+                          <p class="text-xs text-slate-600 dark:text-slate-300 flex items-center gap-1">
+                            <i class="fas fa-phone text-[10px] text-green-500"></i>
+                            {{ agent.user?.phone || 'Non renseigné' }}
+                          </p>
+                          <p class="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1">
+                            <i class="fas fa-envelope text-[10px] text-indigo-500"></i>
+                            {{ agent.user?.email }}
+                          </p>
+                        </div>
+                      </td>
+                      <td class="px-4 py-3">
+                        <span class="text-xs text-slate-600 dark:text-slate-400">
+                          {{ agent.site?.name || 'Non affecté' }}
+                        </span>
+                      </td>
+                      <td class="px-4 py-3">
+                        <div class="flex items-center gap-2">
+                          <span class="text-sm font-bold text-emerald-600 dark:text-emerald-400">94</span>
+                          <div class="w-12 h-1.5 bg-slate-100 dark:bg-slate-700 rounded-full">
+                            <div class="h-full bg-emerald-500 rounded-full" style="width: 94%"></div>
+                          </div>
+                        </div>
+                      </td>
+                      <td class="px-4 py-3">
+                        <span
+                          class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-medium"
+                          [class]="getStatusStyles(agent.status)"
+                        >
+                          <i class="fa-solid text-[8px]" [class]="agent.status === 'idle' ? 'fa-check-circle' : 'fa-clock'"></i>
+                          {{ getStatusLabel(agent.status) }}
+                        </span>
+                      </td>
+                      <td class="px-4 py-3 text-right">
+                        <div class="flex items-center justify-end gap-1">
+                          <button
+                            (click)="viewAgentDetails(agent)"
+                            class="w-7 h-7 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 hover:text-indigo-600 dark:hover:text-indigo-400 transition"
+                            title="Détails"
+                          >
+                            <i class="fa-solid fa-eye text-xs"></i>
+                          </button>
+                          <button
+                            (click)="openEditModal(agent)"
+                            class="w-7 h-7 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-amber-50 dark:hover:bg-amber-900/30 hover:text-amber-600 dark:hover:text-amber-400 transition"
+                            title="Modifier"
+                          >
+                            <i class="fa-solid fa-pen text-xs"></i>
+                          </button>
+                          <button
+                            (click)="toggleActive(agent)"
+                            class="w-7 h-7 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-red-50 dark:hover:bg-red-900/30 hover:text-red-600 dark:hover:text-red-400 transition"
+                            title="Verrouiller/Déverrouiller"
+                          >
+                            <i
+                              class="fa-solid text-xs"
+                              [class.fa-lock]="agent.user?.status === 'active'"
+                              [class.fa-lock-open]="agent.user?.status !== 'active'"
+                            ></i>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  } @empty {
+                    <tr>
+                      <td colspan="7" class="px-4 py-12 text-center text-slate-400 dark:text-slate-500">
+                        <i class="fa-solid fa-users-slash text-2xl mb-2"></i>
+                        <p>Aucun agent trouvé</p>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Version mobile -->
+            <div class="lg:hidden divide-y divide-slate-100 dark:divide-slate-700">
+              @for (agent of paginatedAgents(); track agent.id) {
+                <div class="p-4 hover:bg-slate-50 dark:hover:bg-slate-700/50">
+                  <div class="flex items-start justify-between mb-3">
+                    <div class="flex items-center gap-2">
+                      <div
+                        class="w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center"
+                      >
+                        @if (agent.user?.photoProfile) {
+                          <img
+                            [src]="getPhotoUrl(agent.user.photoProfile)"
+                            class="w-full h-full rounded-full object-cover"
+                          />
+                        } @else {
+                          <i class="fa-solid fa-user text-indigo-600 dark:text-indigo-400 text-sm"></i>
+                        }
+                      </div>
+                      <div>
+                        <p class="font-semibold text-slate-800 dark:text-white">{{ agent.user?.fullname }}</p>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">{{ agent.matricule }}</p>
+                      </div>
+                    </div>
+                    <span
+                      class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-medium"
+                      [class]="getStatusStyles(agent.status)"
+                    >
+                      {{ getStatusLabel(agent.status) }}
+                    </span>
+                  </div>
+
+                  <div class="grid grid-cols-2 gap-3 mb-3">
+                    <div>
+                      <p class="text-xs text-slate-500 dark:text-slate-400">Contact</p>
+                      <p class="text-xs text-slate-700 dark:text-slate-300 flex items-center gap-1">
+                        <i class="fas fa-phone text-[9px] text-green-500"></i>
+                        {{ agent.user?.phone || 'Non renseigné' }}
+                      </p>
+                      <p class="text-xs text-slate-600 dark:text-slate-400 flex items-center gap-1">
+                        <i class="fas fa-envelope text-[9px] text-indigo-500"></i>
+                        {{ agent.user?.email }}
+                      </p>
+                    </div>
+                    <div>
+                      <p class="text-xs text-slate-500 dark:text-slate-400">Site</p>
+                      <p class="text-xs text-slate-700 dark:text-slate-300">{{ agent.site?.name || 'Non affecté' }}</p>
+                    </div>
+                  </div>
+
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                      <span class="text-xs font-bold text-emerald-600 dark:text-emerald-400">94</span>
+                      <div class="w-16 h-1.5 bg-slate-100 dark:bg-slate-700 rounded-full">
+                        <div class="h-full bg-emerald-500 rounded-full" style="width: 94%"></div>
+                      </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                      <button
+                        (click)="viewAgentDetails(agent)"
+                        class="p-1.5 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 hover:text-indigo-600 dark:hover:text-indigo-400"
+                      >
+                        <i class="fa-solid fa-eye"></i>
+                      </button>
+                      <button
+                        (click)="openEditModal(agent)"
+                        class="p-1.5 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-amber-50 dark:hover:bg-amber-900/30 hover:text-amber-600 dark:hover:text-amber-400"
+                      >
+                        <i class="fa-solid fa-pen"></i>
+                      </button>
+                      <button
+                        (click)="toggleActive(agent)"
+                        class="p-1.5 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-red-50 dark:hover:bg-red-900/30 hover:text-red-600 dark:hover:text-red-400"
+                      >
+                        <i
+                          class="fa-solid"
+                          [class.fa-lock]="agent.user?.status === 'active'"
+                          [class.fa-lock-open]="agent.user?.status !== 'active'"
+                        ></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              } @empty {
+                <div class="p-8 text-center text-slate-400 dark:text-slate-500">
+                  <i class="fa-solid fa-users-slash text-2xl mb-2"></i>
+                  <p>Aucun agent trouvé</p>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      }
+
+      <!-- Pagination -->
+      @if (totalPages() > 1) {
+        <div
+          class="flex flex-col sm:flex-row items-center justify-between gap-3 px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg mt-6"
+        >
+          <div class="text-xs text-slate-600 dark:text-slate-400">
+            Affichage {{ startIndex() + 1 }}-{{ endIndex() }} sur {{ sortedAgents().length }} agents
+          </div>
+
+          <div class="flex gap-1">
+            <button
+              (click)="previousPage()"
+              [disabled]="currentPage() === 1"
+              class="w-8 h-8 flex items-center justify-center border border-slate-200 dark:border-slate-700 rounded-lg disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+            >
+              <i class="fa-solid fa-chevron-left text-xs"></i>
+            </button>
+
+            @for (page of getPageNumbers(); track page) {
+              @if (page === '...') {
+                <span class="px-2 text-slate-400 dark:text-slate-500 text-xs self-center">...</span>
+              } @else {
+                <button
+                  (click)="goToPage($any(page))"
+                  [class]="
+                    currentPage() === page
+                      ? 'bg-indigo-600 text-white border-indigo-600'
+                      : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700'
+                  "
+                  class="w-8 h-8 text-sm border rounded-lg font-medium transition-colors"
+                >
+                  {{ page }}
+                </button>
+              }
+            }
+
+            <button
+              (click)="nextPage()"
+              [disabled]="currentPage() === totalPages()"
+              class="w-8 h-8 flex items-center justify-center border border-slate-200 dark:border-slate-700 rounded-lg disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+            >
+              <i class="fa-solid fa-chevron-right text-xs"></i>
+            </button>
+          </div>
+        </div>
+      }
+    </main>
+
+    <!-- MODAL CRÉATION/MODIFICATION -->
+    @if (isModalOpen()) {
+      <div
+        class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 dark:bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4"
+      >
+        <div
+          class="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-100 dark:border-slate-800 w-full max-w-2xl my-8 overflow-hidden transform transition-all duration-300 flex flex-col"
+        >
+          <div
+            class="px-6 py-3 flex justify-between items-center bg-gradient-to-r from-[#1e1e2d] to-[#2d2d3d] text-white flex-shrink-0"
+          >
+            <div class="flex items-center space-x-3">
+              <div>
+                <h2 class="text-base font-bold flex items-center space-x-2">
+                  <div
+                    class="w-8 h-8 rounded-xl bg-gradient-to-br from-cyan-500/20 to-emerald-500/20 border border-cyan-500/30 flex items-center justify-center"
+                  >
+                    <i
+                      class="fas text-sm"
+                      [ngClass]="
+                        selectedAgent()
+                          ? 'fa-user-edit text-cyan-400'
+                          : 'fa-user-plus text-emerald-400'
+                      "
+                    ></i>
+                  </div>
+                  <span>{{
+                    selectedAgent()
+                      ? "Modifier les données de l'agent"
+                      : 'Enregistrer un nouvel agent'
+                  }}</span>
+                </h2>
+              </div>
+            </div>
+            <button
+              (click)="closeModal()"
+              class="w-7 h-7 flex items-center justify-center rounded-full text-slate-400 hover:text-white hover:bg-white/10 transition-all duration-200"
+            >
+              <i class="fas fa-xmark text-sm"></i>
+            </button>
+          </div>
+
+          <div class="overflow-y-auto flex-1" style="max-height: calc(100vh - 120px)">
+            <form [formGroup]="agentForm" (ngSubmit)="saveAgent()" class="p-5 space-y-4">
+              <!-- Section 1: Profil -->
+              <div>
+                <h3
+                  class="text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 mb-2 border-b border-slate-100 dark:border-slate-700 pb-1 flex items-center"
+                >
+                  <i class="fas fa-user mr-2 text-[11px]"></i>1. Profil & Authentification
+                </h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-0.5"
+                      >Nom complet *</label
+                    >
+                    <div class="relative">
+                      <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 dark:text-slate-500"
+                        ><i class="fas fa-user text-xs"></i
+                      ></span>
+                      <input
+                        type="text"
+                        formControlName="fullname"
+                        class="w-full text-sm border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white rounded-lg pl-9 pr-3 py-2 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 dark:focus:ring-indigo-900/30 transition"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-0.5"
+                      >Adresse Email *</label
+                    >
+                    <div class="relative">
+                      <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 dark:text-slate-500"
+                        ><i class="fas fa-envelope text-xs"></i
+                      ></span>
+                      <input
+                        type="email"
+                        formControlName="email"
+                        class="w-full text-sm border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white rounded-lg pl-9 pr-3 py-2 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 dark:focus:ring-indigo-900/30 transition"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-0.5"
+                      >Téléphone mobile *</label
+                    >
+                    <div class="relative">
+                      <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 dark:text-slate-500"
+                        ><i class="fas fa-phone text-xs"></i
+                      ></span>
+                      <input
+                        type="text"
+                        formControlName="phone"
+                        class="w-full text-sm border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white rounded-lg pl-9 pr-3 py-2 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 dark:focus:ring-indigo-900/30 transition"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-0.5"
+                      >Date d'embauche *</label
+                    >
+                    <div class="relative">
+                      <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 dark:text-slate-500"
+                        ><i class="fas fa-calendar text-xs"></i
+                      ></span>
+                      <input
+                        type="date"
+                        formControlName="hireDate"
+                        class="w-full text-sm border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white rounded-lg pl-9 pr-3 py-2 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 dark:focus:ring-indigo-900/30 transition"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-0.5"
+                      >Type de Contrat *</label
+                    >
+                    <div class="relative">
+                      <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 dark:text-slate-500"
+                        ><i class="fas fa-file-contract text-xs"></i
+                      ></span>
+                      <select
+                        formControlName="contractType"
+                        class="w-full text-sm border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white rounded-lg pl-9 pr-3 py-2 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 dark:focus:ring-indigo-900/30 transition appearance-none bg-no-repeat bg-right"
+                      >
+                        <option value="CDI">CDI (Indéterminé)</option>
+                        <option value="CDD">CDD (Déterminé)</option>
+                        <option value="STAGIAIRE">Stagiaire</option>
+                        <option value="VACATAIRE">Vacataire</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <!-- Photo de profil -->
+                  <div>
+                    <label
+                      class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-0.5 flex items-center gap-1.5"
+                    >
+                      <i class="fas fa-camera text-indigo-400 text-[11px]"></i>
+                      Photo de profil
+                      <span class="text-[10px] font-normal text-slate-400 dark:text-slate-500">(optionnel)</span>
+                    </label>
+
+                    @if (!photoPreview) {
+                      <div
+                        (click)="photoInput.click()"
+                        class="group cursor-pointer rounded-lg border-2 border-dashed border-slate-200 dark:border-slate-700 hover:border-indigo-400 bg-gradient-to-br from-slate-50 to-white dark:from-slate-800 dark:to-slate-900 hover:from-indigo-50 dark:hover:from-indigo-950/30 hover:to-white dark:hover:to-slate-900 transition-all duration-200 h-[42px]"
+                      >
+                        <div class="flex items-center gap-3 h-full px-3">
+                          <i
+                            class="fas fa-cloud-upload-alt text-indigo-500 text-base group-hover:scale-110 transition-transform duration-200"
+                          ></i>
+                          <span
+                            class="text-xs text-slate-500 dark:text-slate-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors"
+                            >Ajouter une photo</span
+                          >
+                        </div>
+                      </div>
+                    } @else {
+                      <div class="relative group h-[42px]">
+                        <div class="flex items-center gap-3 h-full">
+                          <img
+                            [src]="photoPreview"
+                            class="w-8 h-8 rounded-lg object-cover border border-indigo-200 dark:border-indigo-800 shadow-sm"
+                          />
+                          <div class="flex gap-1">
+                            <button
+                              type="button"
+                              (click)="photoInput.click()"
+                              class="px-2 py-1 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-lg hover:bg-indigo-100 dark:hover:bg-indigo-900/50 transition-colors text-xs"
+                            >
+                              <i class="fas fa-pen text-[10px] mr-1"></i>
+                              Changer
+                            </button>
+                            <button
+                              type="button"
+                              (click)="removePhoto()"
+                              class="px-2 py-1 bg-red-50 dark:bg-red-900/30 text-red-500 dark:text-red-400 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/50 transition-colors text-xs"
+                            >
+                              <i class="fas fa-trash-alt text-[10px] mr-1"></i>
+                              Supprimer
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    }
+
+                    <input
+                      type="file"
+                      #photoInput
+                      (change)="onPhotoSelected($event)"
+                      class="hidden"
+                      accept="image/*"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Section 2: Pièce d'Identité -->
+              <div formGroupName="identityCard">
+                <h3
+                  class="text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 mb-2 border-b border-slate-100 dark:border-slate-700 pb-1 flex items-center"
+                >
+                  <i class="fas fa-id-card mr-2 text-[11px]"></i>2. Pièce d'Identité Réglementaire
+                </h3>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div>
+                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-0.5"
+                      >Type de document</label
+                    >
+                    <select
+                      formControlName="type"
+                      class="w-full text-sm border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white rounded-lg px-3 py-2 focus:outline-none focus:border-indigo-500 transition"
+                    >
+                      <option value="CNI">CNI (Carte Nationale)</option>
+                      <option value="Passeport">Passeport</option>
+                      <option value="Carte Électeur">Carte Électeur</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-0.5"
+                      >Numéro de pièce</label
+                    >
+                    <input
+                      type="text"
+                      formControlName="number"
+                      class="w-full text-sm border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white rounded-lg px-3 py-2 focus:outline-none focus:border-indigo-500 transition"
+                    />
+                  </div>
+                  <div>
+                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-0.5"
+                      >Date d'expiration</label
+                    >
+                    <input
+                      type="date"
+                      formControlName="expiryDate"
+                      class="w-full text-sm border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white rounded-lg px-3 py-2 focus:outline-none focus:border-indigo-500 transition"
+                    />
+                  </div>
+                </div>
+
+                <!-- Document scanné -->
+                <div class="mt-3">
+                  <label
+                    class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-0.5 flex items-center gap-1.5"
+                  >
+                    <i class="fas fa-file-alt text-indigo-400 text-[11px]"></i>
+                    Document scanné
+                    <span class="text-[10px] font-normal text-slate-400 dark:text-slate-500">(optionnel)</span>
+                  </label>
+
+                  @if (!identityDocumentFile) {
+                    <div
+                      (click)="identityDocumentInput.click()"
+                      class="group cursor-pointer rounded-lg border-2 border-dashed border-slate-200 dark:border-slate-700 hover:border-indigo-400 bg-gradient-to-br from-slate-50 to-white dark:from-slate-800 dark:to-slate-900 hover:from-indigo-50 dark:hover:from-indigo-950/30 hover:to-white dark:hover:to-slate-900 transition-all duration-200 h-[42px]"
+                    >
+                      <div class="flex items-center gap-3 h-full px-3">
+                        <i
+                          class="fas fa-file-pdf text-indigo-500 text-base group-hover:scale-110 transition-transform duration-200"
+                        ></i>
+                        <span
+                          class="text-xs text-slate-500 dark:text-slate-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors"
+                          >Charger un document</span
+                        >
+                      </div>
+                    </div>
+                  } @else {
+                    <div
+                      class="flex items-center gap-3 h-[42px] px-3 bg-gradient-to-r from-indigo-50 to-blue-50 dark:from-indigo-950/30 dark:to-blue-950/30 rounded-lg border border-indigo-100 dark:border-indigo-800/30"
+                    >
+                      <i class="fas fa-file-pdf text-red-500 dark:text-red-400 text-base"></i>
+                      <span class="text-xs text-slate-700 dark:text-slate-300 truncate flex-1">{{
+                        identityDocumentFile.name
+                      }}</span>
+                      <button
+                        type="button"
+                        (click)="identityDocumentInput.click()"
+                        class="px-2 py-1 bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-900/30 transition-colors text-xs"
+                        title="Changer"
+                      >
+                        <i class="fas fa-sync-alt text-[10px] mr-1"></i>
+                        Changer
+                      </button>
+                      <button
+                        type="button"
+                        (click)="removeIdentityDocument()"
+                        class="px-2 py-1 bg-white dark:bg-slate-800 text-red-500 dark:text-red-400 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors text-xs"
+                        title="Supprimer"
+                      >
+                        <i class="fas fa-trash-alt text-[10px] mr-1"></i>
+                        Supprimer
+                      </button>
+                    </div>
+                  }
+
+                  <input
+                    type="file"
+                    #identityDocumentInput
+                    (change)="onIdentityDocumentSelected($event)"
+                    class="hidden"
+                    accept=".pdf,image/*"
+                  />
+                </div>
+              </div>
+
+              <!-- Section 3: Contact d'Urgence -->
+              <div formGroupName="emergencyContact">
+                <h3
+                  class="text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 mb-2 border-b border-slate-100 dark:border-slate-700 pb-1 flex items-center"
+                >
+                  <i class="fas fa-heartbeat mr-2 text-[11px]"></i>3. Contact d'Urgence
+                </h3>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div>
+                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-0.5"
+                      >Nom complet</label
+                    >
+                    <div class="relative">
+                      <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 dark:text-slate-500"
+                        ><i class="fas fa-user-friends text-xs"></i
+                      ></span>
+                      <input
+                        type="text"
+                        formControlName="name"
+                        class="w-full text-sm border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white rounded-lg pl-9 pr-3 py-2 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 dark:focus:ring-indigo-900/30 transition"
+                        placeholder="Jean Dupont"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-0.5"
+                      >Téléphone</label
+                    >
+                    <div class="relative">
+                      <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 dark:text-slate-500"
+                        ><i class="fas fa-phone-alt text-xs"></i
+                      ></span>
+                      <input
+                        type="text"
+                        formControlName="phone"
+                        class="w-full text-sm border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white rounded-lg pl-9 pr-3 py-2 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 dark:focus:ring-indigo-900/30 transition"
+                        placeholder="+221 77 123 45 67"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-0.5"
+                      >Lien de parenté</label
+                    >
+                    <div class="relative">
+                      <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 dark:text-slate-500"
+                        ><i class="fas fa-heart text-xs"></i
+                      ></span>
+                      <input
+                        type="text"
+                        formControlName="relationship"
+                        class="w-full text-sm border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white rounded-lg pl-9 pr-3 py-2 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 dark:focus:ring-indigo-900/30 transition"
+                        placeholder="Époux, Frère, Parent..."
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Boutons d'action -->
+              <div
+                class="bg-slate-50 dark:bg-slate-800 -mx-5 -mb-5 mt-4 px-5 py-3 flex items-center justify-end space-x-3 border-t border-slate-100 dark:border-slate-700 rounded-b-2xl"
+              >
+                <button
+                  type="submit"
+                  [disabled]="agentForm.invalid || isSaving()"
+                  class="px-4 py-2 bg-gradient-to-r from-indigo-600 to-blue-600 text-white text-sm font-medium rounded-lg hover:from-indigo-700 hover:to-blue-700 disabled:opacity-40 transition-all duration-200 shadow-md hover:shadow-lg"
+                >
+                  @if (isSaving()) {
+                    <i class="fa-solid fa-spinner fa-spin mr-2"></i>
+                  }
+                  @if (selectedAgent()) {
+                    <i class="fas fa-edit mr-1 text-xs"></i>
+                    Modifier l'agent
+                  } @else {
+                    <i class="fa-solid fa-plus mr-1 text-xs"></i>
+                    Créer l'agent
+                  }
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- MODAL DÉTAILS -->
+    @if (isDetailsModalOpen() && selectedAgentForDetails()) {
+      <div
+        class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 dark:bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4"
+      >
+        <div
+          class="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-100 dark:border-slate-800 w-full max-w-2xl my-8 overflow-hidden transform transition-all duration-300 flex flex-col"
+        >
+          <!-- Header -->
+          <div
+            class="px-6 py-3 flex justify-between items-center bg-gradient-to-r from-slate-900 to-slate-800 text-white flex-shrink-0"
+          >
+            <div class="flex items-center space-x-3">
+              <div
+                class="w-8 h-8 rounded-xl bg-gradient-to-br from-indigo-500/20 to-blue-500/20 text-indigo-400 flex items-center justify-center border border-indigo-500/30"
+              >
+                <i class="fas fa-id-card text-sm"></i>
+              </div>
+              <div>
+                <h2 class="text-base font-bold">Fiche Individuelle</h2>
+                <p class="text-[10px] text-slate-400">Informations détaillées de l'agent</p>
+              </div>
+            </div>
+            <button
+              (click)="closeDetailsModal()"
+              class="w-7 h-7 flex items-center justify-center rounded-full text-slate-400 hover:text-white hover:bg-white/10 transition-all duration-200"
+            >
+              <i class="fas fa-xmark text-sm"></i>
+            </button>
+          </div>
+
+          <div class="overflow-y-auto flex-1" style="max-height: calc(100vh - 120px)">
+            <div class="p-5 space-y-4">
+              <!-- Section Profil compacte -->
+              <div
+                class="flex items-center space-x-3 bg-gradient-to-r from-indigo-50 to-blue-50 dark:from-indigo-950/30 dark:to-blue-950/30 p-3 rounded-xl border border-indigo-100 dark:border-indigo-800/30"
+              >
+                <div class="relative">
+                  @if (selectedAgentForDetails()?.user?.photoProfile) {
+                    <img
+                      [src]="getPhotoUrl(selectedAgentForDetails()!.user!.photoProfile!)"
+                      alt="Avatar"
+                      class="w-12 h-12 rounded-full object-cover ring-2 ring-white dark:ring-slate-800 shadow"
+                    />
+                  } @else {
+                    <div
+                      class="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-500 to-blue-500 text-white flex items-center justify-center font-bold text-lg shadow"
+                    >
+                      {{
+                        selectedAgentForDetails()?.user?.fullname || '' | slice: 0 : 2 | uppercase
+                      }}
+                    </div>
+                  }
+                  <div
+                    class="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 rounded-full border border-white dark:border-slate-800"
+                  ></div>
+                </div>
+                <div class="flex-1">
+                  <h4 class="text-sm font-bold text-slate-800 dark:text-white">
+                    {{ selectedAgentForDetails()?.user?.fullname }}
+                  </h4>
+                  <div class="flex items-center gap-2 mt-0.5">
+                    <p class="text-[10px] text-slate-500 dark:text-slate-400 flex items-center">
+                      <i class="fas fa-fingerprint mr-1 text-indigo-500 dark:text-indigo-400 text-[9px]"></i>
+                      Matricule :
+                      <span class="font-mono font-bold text-indigo-600 dark:text-indigo-400 ml-1 text-[10px]">{{
+                        selectedAgentForDetails()?.matricule || 'Non attribué'
+                      }}</span>
+                    </p>
+                    <span
+                      class="inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-bold"
+                      [ngClass]="getStatusStyles(selectedAgentForDetails()?.status)"
+                    >
+                      {{ getStatusLabel(selectedAgentForDetails()?.status) }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Grille d'informations compacte -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <!-- Email -->
+                <div class="bg-white dark:bg-slate-800 p-2.5 rounded-lg border border-slate-200 dark:border-slate-700">
+                  <div class="flex items-center gap-1.5 mb-1">
+                    <i class="fas fa-envelope text-indigo-500 dark:text-indigo-400 text-[10px]"></i>
+                    <span class="text-[9px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider"
+                      >Email</span
+                    >
+                  </div>
+                  <p class="text-xs text-slate-700 dark:text-slate-300 font-medium break-all pl-4">
+                    {{ selectedAgentForDetails()?.user?.email || 'Non renseigné' }}
+                  </p>
+                </div>
+
+                <!-- Téléphone -->
+                <div class="bg-white dark:bg-slate-800 p-2.5 rounded-lg border border-slate-200 dark:border-slate-700">
+                  <div class="flex items-center gap-1.5 mb-1">
+                    <i class="fas fa-phone text-green-500 dark:text-green-400 text-[10px]"></i>
+                    <span class="text-[9px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider"
+                      >Téléphone</span
+                    >
+                  </div>
+                  <p class="text-xs text-slate-700 dark:text-slate-300 font-medium pl-4">
+                    {{ selectedAgentForDetails()?.user?.phone || 'Non renseigné' }}
+                  </p>
+                </div>
+
+                <!-- Date d'embauche -->
+                <div class="bg-white dark:bg-slate-800 p-2.5 rounded-lg border border-slate-200 dark:border-slate-700">
+                  <div class="flex items-center gap-1.5 mb-1">
+                    <i class="fas fa-calendar-alt text-purple-500 dark:text-purple-400 text-[10px]"></i>
+                    <span class="text-[9px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider"
+                      >Date d'embauche</span
+                    >
+                  </div>
+                  <p class="text-xs text-slate-700 dark:text-slate-300 font-medium pl-4">
+                    {{ formatDate(selectedAgentForDetails()?.hireDate) || 'Non renseignée' }}
+                  </p>
+                </div>
+
+                <!-- Type de contrat -->
+                <div class="bg-white dark:bg-slate-800 p-2.5 rounded-lg border border-slate-200 dark:border-slate-700">
+                  <div class="flex items-center gap-1.5 mb-1">
+                    <i class="fas fa-file-contract text-orange-500 dark:text-orange-400 text-[10px]"></i>
+                    <span class="text-[9px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider"
+                      >Contrat</span
+                    >
+                  </div>
+                  <p class="text-xs text-slate-700 dark:text-slate-300 font-medium pl-4">
+                    {{ getContratLabel(selectedAgentForDetails()?.contractType) }}
+                  </p>
+                </div>
+
+                <!-- Adresse -->
+                <div class="bg-white dark:bg-slate-800 p-2.5 rounded-lg border border-slate-200 dark:border-slate-700 sm:col-span-2">
+                  <div class="flex items-center gap-1.5 mb-1">
+                    <i class="fas fa-map-marker-alt text-teal-500 dark:text-teal-400 text-[10px]"></i>
+                    <span class="text-[9px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider"
+                      >Adresse</span
+                    >
+                  </div>
+                  <p class="text-xs text-slate-700 dark:text-slate-300 font-medium pl-4">
+                    {{ selectedAgentForDetails()?.user?.address || 'Non renseignée' }}
+                  </p>
+                </div>
+              </div>
+
+              <!-- Section Pièce d'Identité compacte -->
+              <div class="bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
+                <div
+                  class="bg-gradient-to-r from-indigo-50 to-blue-50 dark:from-indigo-950/30 dark:to-blue-950/30 px-3 py-2 border-b border-slate-200 dark:border-slate-700"
+                >
+                  <div class="flex items-center gap-1.5">
+                    <i class="fas fa-id-card text-indigo-500 dark:text-indigo-400 text-[10px]"></i>
+                    <h3 class="text-xs font-bold text-slate-700 dark:text-slate-300">Pièce d'Identité</h3>
+                  </div>
+                </div>
+                <div class="p-3">
+                  <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
+                    <div>
+                      <label
+                        class="text-[9px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block mb-0.5"
+                        >Type</label
+                      >
+                      <p class="text-xs text-slate-700 dark:text-slate-300 font-semibold">
+                        {{
+                          getIdentityTypeLabel(selectedAgentForDetails()?.identityCard?.type || '')
+                        }}
+                      </p>
+                    </div>
+                    <div>
+                      <label
+                        class="text-[9px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block mb-0.5"
+                        >Numéro</label
+                      >
+                      <p class="text-xs text-slate-700 dark:text-slate-300 font-mono font-bold">
+                        {{ selectedAgentForDetails()?.identityCard?.number || 'Non renseigné' }}
+                      </p>
+                    </div>
+                    <div>
+                      <label
+                        class="text-[9px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block mb-0.5"
+                        >Expiration</label
+                      >
+                      <p
+                        class="text-xs text-slate-700 dark:text-slate-300 font-medium"
+                        [ngClass]="{
+                          'text-red-600 dark:text-red-400 font-bold': isExpired(
+                            selectedAgentForDetails()?.identityCard?.expiryDate
+                          ),
+                        }"
+                      >
+                        {{
+                          formatDate(selectedAgentForDetails()?.identityCard!.expiryDate!) || 'Non renseigné'
+                        }}
+                      </p>
+                    </div>
+                  </div>
+                  @if (selectedAgentForDetails()?.identityCard?.documentPath) {
+                    <div class="mt-2">
+                      <a
+                        [href]="
+                          getDocumentUrl(selectedAgentForDetails()?.identityCard?.documentPath)
+                        "
+                        target="_blank"
+                        class="inline-flex items-center gap-1.5 px-2 py-1 bg-red-50 dark:bg-red-950/30 rounded-lg text-[10px] font-medium text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-950/50 transition"
+                      >
+                        <i class="fa-solid fa-file-pdf text-red-500 dark:text-red-400 text-[10px]"></i>
+                        Voir le document
+                      </a>
+                    </div>
+                  }
+                </div>
+              </div>
+
+              <!-- Section Contact d'Urgence compacte -->
+              <div class="bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
+                <div
+                  class="bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-950/30 dark:to-orange-950/30 px-3 py-2 border-b border-slate-200 dark:border-slate-700"
+                >
+                  <div class="flex items-center gap-1.5">
+                    <i class="fas fa-heartbeat text-red-500 dark:text-red-400 text-[10px]"></i>
+                    <h3 class="text-xs font-bold text-slate-700 dark:text-slate-300">Contact d'Urgence</h3>
+                  </div>
+                </div>
+                <div class="p-3">
+                  <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
+                    <div>
+                      <label
+                        class="text-[9px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block mb-0.5"
+                        >Nom</label
+                      >
+                      <p class="text-xs text-slate-700 dark:text-slate-300 font-semibold">
+                        {{ selectedAgentForDetails()?.emergencyContact?.name || 'Non renseigné' }}
+                      </p>
+                    </div>
+                    <div>
+                      <label
+                        class="text-[9px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block mb-0.5"
+                        >Téléphone</label
+                      >
+                      <p class="text-xs text-slate-700 dark:text-slate-300 font-medium">
+                        {{ selectedAgentForDetails()?.emergencyContact?.phone || 'Non renseigné' }}
+                      </p>
+                    </div>
+                    <div>
+                      <label
+                        class="text-[9px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block mb-0.5"
+                        >Parenté</label
+                      >
+                      <p class="text-xs text-slate-700 dark:text-slate-300 font-medium">
+                        {{
+                          selectedAgentForDetails()?.emergencyContact?.relationship ||
+                            'Non renseigné'
+                        }}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</div>

@@ -1,0 +1,680 @@
+<!-- site-details.html -->
+<div class="min-h-screen bg-slate-50 dark:bg-slate-900">
+  <div class="container mx-auto px-4 py-6">
+    <!-- Loading state -->
+    @if (loading()) {
+      <div class="flex flex-col items-center justify-center min-h-[50vh]">
+        <div
+          class="w-12 h-12 border-3 border-blue-100 dark:border-blue-900/30 border-t-blue-600 dark:border-t-blue-400 rounded-full animate-spin"
+        ></div>
+        <p class="text-sm text-slate-500 dark:text-slate-400 mt-3">Chargement...</p>
+      </div>
+    } @else {
+      <!-- Header -->
+      <div
+        class="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 mb-4"
+      >
+        <div
+          class="px-4 py-3 border-b border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/50"
+        >
+          <div class="flex items-center gap-3">
+            <button
+              (click)="goBack()"
+              class="w-8 h-8 rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+            >
+              <i class="fa-solid fa-arrow-left text-sm"></i>
+            </button>
+
+            <div class="w-9 h-9 rounded-lg bg-blue-500 flex items-center justify-center text-white">
+              <i class="fa-solid fa-building text-base"></i>
+            </div>
+
+            <div class="flex-1">
+              <h1 class="text-lg font-bold text-slate-800 dark:text-white">
+                {{ site()?.name || 'Site sans nom' }}
+              </h1>
+              <p class="text-xs text-slate-500 dark:text-slate-400">
+                Code: {{ site()?.code || 'Non défini' }}
+              </p>
+            </div>
+
+            <span
+              [class]="
+                site()?.isActive
+                  ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400'
+                  : 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400'
+              "
+              class="px-2 py-1 rounded-lg text-[10px] font-semibold"
+            >
+              <i class="fa-solid fa-circle text-[5px] mr-1 align-middle"></i>
+              {{ getStatusLabel(site()?.isActive || false) }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Info cards compact -->
+        <div class="p-4">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+            <div class="flex items-center gap-2 text-sm">
+              <div
+                class="w-7 h-7 rounded-lg bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center flex-shrink-0"
+              >
+                <i class="fa-solid fa-location-dot text-blue-500 dark:text-blue-400 text-xs"></i>
+              </div>
+              <div class="min-w-0">
+                <p class="text-[10px] text-slate-400 dark:text-slate-500 uppercase tracking-wide">
+                  Adresse
+                </p>
+                <p class="text-xs text-slate-700 dark:text-slate-300 truncate">
+                  {{ site()?.address || 'Non renseignée' }}
+                </p>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-2 text-sm">
+              <div
+                class="w-7 h-7 rounded-lg bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center flex-shrink-0"
+              >
+                <i
+                  class="fa-solid fa-satellite-dish text-emerald-500 dark:text-emerald-400 text-xs"
+                ></i>
+              </div>
+              <div>
+                <p class="text-[10px] text-slate-400 dark:text-slate-500 uppercase tracking-wide">
+                  GPS
+                </p>
+                <p class="text-xs text-slate-700 dark:text-slate-300 font-mono">
+                  {{ (site()?.latitude || 0).toFixed(4) }},
+                  {{ (site()?.longitude || 0).toFixed(4) }}
+                </p>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-2 text-sm">
+              <div
+                class="w-7 h-7 rounded-lg bg-orange-50 dark:bg-orange-900/30 flex items-center justify-center flex-shrink-0"
+              >
+                <i class="fa-solid fa-circle-dot text-orange-500 dark:text-orange-400 text-xs"></i>
+              </div>
+              <div>
+                <p class="text-[10px] text-slate-400 dark:text-slate-500 uppercase tracking-wide">
+                  Périmètre
+                </p>
+                <p class="text-xs text-slate-700 dark:text-slate-300 font-semibold">
+                  {{ site()?.securityRadius || 0 }} m
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Contact info compact -->
+          @if (site()?.ownerInfo) {
+            <div
+              class="bg-slate-50 dark:bg-slate-900/50 rounded-lg p-3 mb-4 border border-slate-100 dark:border-slate-700"
+            >
+              <p
+                class="text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-2"
+              >
+                <i class="fa-solid fa-user-tie mr-1"></i> Contact
+              </p>
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
+                <div>
+                  <span class="text-slate-400 dark:text-slate-500">Responsable:</span>
+                  <span class="text-slate-700 dark:text-slate-300 font-medium ml-1">{{
+                    site()?.ownerInfo?.fullname || '-'
+                  }}</span>
+                </div>
+                <div>
+                  <span class="text-slate-400 dark:text-slate-500">Tél:</span>
+                  <span class="text-slate-700 dark:text-slate-300 font-medium ml-1">{{
+                    site()?.ownerInfo?.phone || '-'
+                  }}</span>
+                </div>
+                <div>
+                  <span class="text-slate-400 dark:text-slate-500">Email:</span>
+                  <span class="text-slate-700 dark:text-slate-300 font-medium ml-1 truncate">{{
+                    site()?.ownerInfo?.email || '-'
+                  }}</span>
+                </div>
+              </div>
+            </div>
+          }
+
+          <!-- Tabs compact -->
+          <div class="border-b border-slate-200 dark:border-slate-700 mb-3">
+            <div class="flex gap-1">
+              <button
+                (click)="activeTab.set('checkpoints')"
+                class="px-3 py-1.5 text-xs font-medium rounded-t-lg transition-colors"
+                [class]="
+                  activeTab() === 'checkpoints'
+                    ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400 bg-blue-50/50 dark:bg-blue-900/20'
+                    : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
+                "
+              >
+                <i class="fa-solid fa-map-pin mr-1 text-[10px]"></i>
+                Points ({{ checkpoints().length }})
+              </button>
+              <button
+                (click)="activeTab.set('agents')"
+                class="px-3 py-1.5 text-xs font-medium rounded-t-lg transition-colors"
+                [class]="
+                  activeTab() === 'agents'
+                    ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400 bg-blue-50/50 dark:bg-blue-900/20'
+                    : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
+                "
+              >
+                <i class="fa-solid fa-users mr-1 text-[10px]"></i>
+                Agents ({{ agents().length }})
+              </button>
+              <button
+                (click)="activeTab.set('plannings')"
+                class="px-3 py-1.5 text-xs font-medium rounded-t-lg transition-colors"
+                [class]="
+                  activeTab() === 'plannings'
+                    ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400 bg-blue-50/50 dark:bg-blue-900/20'
+                    : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
+                "
+              >
+                <i class="fa-solid fa-calendar-alt mr-1 text-[10px]"></i>
+                Plannings ({{ plannings().length }})
+              </button>
+            </div>
+          </div>
+
+          <!-- Tab: Checkpoints compact avec formulaire -->
+          @if (activeTab() === 'checkpoints') {
+            <div>
+              <!-- Formulaire d'ajout/édition checkpoint -->
+              <div
+                class="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 mb-4"
+              >
+                <div
+                  class="px-3 py-2 border-b border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/50"
+                >
+                  <div class="flex items-center gap-2">
+                    <i
+                      class="fa-solid {{
+                        editingCheckpoint() ? 'fa-pen' : 'fa-plus'
+                      }} text-blue-500 dark:text-blue-400 text-xs"
+                    ></i>
+                    <span class="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                      {{ editingCheckpoint() ? 'Modifier' : 'Ajouter' }} un point de contrôle
+                    </span>
+                    @if (editingCheckpoint()) {
+                      <span
+                        class="text-[9px] text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-900/30 px-1.5 py-0.5 rounded-full"
+                        >Édition</span
+                      >
+                    }
+                  </div>
+                </div>
+
+                <form
+                  [formGroup]="checkpointForm"
+                  (ngSubmit)="saveCheckpoint()"
+                  class="p-3 space-y-3"
+                >
+                  <div>
+                    <label
+                      class="block text-[10px] font-semibold text-slate-600 dark:text-slate-400 mb-1"
+                    >
+                      Nom du point <span class="text-red-500">*</span>
+                    </label>
+                    <input
+                      formControlName="name"
+                      type="text"
+                      placeholder="Ex: Entrée principale"
+                      class="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-white text-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20 outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500"
+                    />
+                    @if (
+                      checkpointForm.get('name')?.invalid && checkpointForm.get('name')?.touched
+                    ) {
+                      <p class="text-[9px] text-red-500 mt-0.5">Nom requis (2-100 caractères)</p>
+                    }
+                  </div>
+
+                  <div class="grid grid-cols-2 gap-3">
+                    <div>
+                      <label
+                        class="block text-[10px] font-semibold text-slate-600 dark:text-slate-400 mb-1"
+                      >
+                        Ordre <span class="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="number"
+                        formControlName="order"
+                        min="0"
+                        class="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-white text-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20 outline-none transition-all"
+                      />
+                    </div>
+                    <div>
+                      <label
+                        class="block text-[10px] font-semibold text-slate-600 dark:text-slate-400 mb-1"
+                      >
+                        Rayon (m) <span class="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="number"
+                        formControlName="radius"
+                        min="10"
+                        max="500"
+                        class="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-white text-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20 outline-none transition-all"
+                      />
+                    </div>
+                  </div>
+
+                  <div class="grid grid-cols-2 gap-3">
+                    <div>
+                      <label
+                        class="block text-[10px] font-semibold text-slate-600 dark:text-slate-400 mb-1"
+                      >
+                        Latitude <span class="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="number"
+                        step="any"
+                        formControlName="latitude"
+                        placeholder="9.5095"
+                        class="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-white text-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20 outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500"
+                      />
+                    </div>
+                    <div>
+                      <label
+                        class="block text-[10px] font-semibold text-slate-600 dark:text-slate-400 mb-1"
+                      >
+                        Longitude <span class="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="number"
+                        step="any"
+                        formControlName="longitude"
+                        placeholder="-13.6227"
+                        class="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-white text-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20 outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500"
+                      />
+                    </div>
+                  </div>
+
+                  <div class="flex justify-end gap-2 pt-2">
+                    @if (editingCheckpoint()) {
+                      <button
+                        type="button"
+                        (click)="cancelEditCheckpoint()"
+                        class="px-3 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-400 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+                      >
+                        Annuler
+                      </button>
+                    }
+                    <button
+                      type="submit"
+                      [disabled]="isSubmittingCheckpoint() || checkpointForm.invalid"
+                      class="px-4 py-1.5 bg-blue-600 text-white rounded-lg text-xs font-medium hover:bg-blue-700 transition-colors disabled:opacity-50 flex items-center gap-1"
+                    >
+                      @if (isSubmittingCheckpoint()) {
+                        <i class="fa-solid fa-spinner fa-spin text-[10px]"></i>
+                      } @else {
+                        <i
+                          class="fa-solid text-[10px]"
+                          [class.fa-plus]="!editingCheckpoint()"
+                          [class.fa-save]="editingCheckpoint()"
+                        ></i>
+                      }
+                      {{
+                        editingCheckpoint()
+                          ? isSubmittingCheckpoint()
+                            ? '...'
+                            : 'Mettre à jour'
+                          : isSubmittingCheckpoint()
+                            ? '...'
+                            : 'Ajouter'
+                      }}
+                    </button>
+                  </div>
+                </form>
+              </div>
+
+              <!-- Mini stats checkpoints -->
+              <div class="grid grid-cols-4 gap-2 mb-3">
+                <div class="bg-blue-50 dark:bg-blue-900/30 rounded-lg p-2 text-center">
+                  <div class="text-base font-bold text-blue-600 dark:text-blue-400">
+                    {{ checkpoints().length }}
+                  </div>
+                  <div class="text-[9px] text-slate-500 dark:text-slate-400">Total</div>
+                </div>
+                <div class="bg-emerald-50 dark:bg-emerald-900/30 rounded-lg p-2 text-center">
+                  <div class="text-base font-bold text-emerald-600 dark:text-emerald-400">
+                    {{ activeCheckpointsCount() }}
+                  </div>
+                  <div class="text-[9px] text-slate-500 dark:text-slate-400">Actifs</div>
+                </div>
+                <div class="bg-amber-50 dark:bg-amber-900/30 rounded-lg p-2 text-center">
+                  <div class="text-base font-bold text-amber-600 dark:text-amber-400">
+                    {{ inactiveCheckpointsCount() }}
+                  </div>
+                  <div class="text-[9px] text-slate-500 dark:text-slate-400">Inactifs</div>
+                </div>
+                <div class="bg-purple-50 dark:bg-purple-900/30 rounded-lg p-2 text-center">
+                  <div class="text-base font-bold text-purple-600 dark:text-purple-400">
+                    {{ checkpointsWithCoordsCount() }}
+                  </div>
+                  <div class="text-[9px] text-slate-500 dark:text-slate-400">GPS</div>
+                </div>
+              </div>
+
+              <!-- Checkpoints list compact -->
+              @if (loadingCheckpoints()) {
+                <div class="flex justify-center py-8">
+                  <div
+                    class="w-6 h-6 border-2 border-blue-100 dark:border-blue-900/30 border-t-blue-600 dark:border-t-blue-400 rounded-full animate-spin"
+                  ></div>
+                </div>
+              } @else {
+                @if (checkpoints().length > 0) {
+                  <div
+                    cdkDropList
+                    (cdkDropListDropped)="dropCheckpoint($event)"
+                    class="space-y-1.5 max-h-80 overflow-y-auto"
+                  >
+                    @for (cp of checkpoints(); track cp.id; let i = $index) {
+                      <div
+                        cdkDrag
+                        [cdkDragDisabled]="savingOrder()"
+                        class="group bg-white dark:bg-slate-800 rounded-lg p-2 flex items-center gap-2 border border-slate-200 dark:border-slate-700 cursor-move hover:border-blue-300 dark:hover:border-blue-600 transition-all"
+                      >
+                        <div
+                          cdkDragHandle
+                          class="px-1 text-slate-300 dark:text-slate-600 hover:text-blue-500 dark:hover:text-blue-400 cursor-grab"
+                        >
+                          <i class="fa-solid fa-grip-vertical text-xs"></i>
+                        </div>
+
+                        <div
+                          class="w-5 h-5 rounded-full bg-orange-500 flex items-center justify-center flex-shrink-0"
+                        >
+                          <span class="text-[9px] font-bold text-white">{{
+                            cp.order || i + 1
+                          }}</span>
+                        </div>
+
+                        <span
+                          class="text-xs text-slate-700 dark:text-slate-300 flex-1 truncate font-medium"
+                        >
+                          {{ cp.name }}
+                        </span>
+
+                        <span
+                          [class]="
+                            cp.isActive
+                              ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400'
+                              : 'bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-400'
+                          "
+                          class="text-[8px] px-1.5 py-0.5 rounded-full font-semibold"
+                        >
+                          {{ cp.isActive ? 'Actif' : 'Inactif' }}
+                        </span>
+
+                        <button
+                          (click)="editCheckpoint(cp)"
+                          class="w-6 h-6 rounded-lg text-slate-400 dark:text-slate-500 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/30 transition-colors"
+                          title="Modifier"
+                        >
+                          <i class="fa-solid fa-pen text-[10px]"></i>
+                        </button>
+
+                        <button
+                          (click)="toggleCheckpointStatus(cp)"
+                          class="w-6 h-6 rounded-lg text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                          title="Changer statut"
+                        >
+                          <i
+                            class="fa-solid text-xs"
+                            [class.fa-lock]="cp.isActive === false"
+                            [class.fa-lock-open]="cp.isActive !== false"
+                          ></i>
+                        </button>
+                      </div>
+                    }
+                  </div>
+                } @else {
+                  <div
+                    class="text-center py-10 bg-slate-50 dark:bg-slate-900/50 rounded-lg border border-dashed border-slate-200 dark:border-slate-700"
+                  >
+                    <i
+                      class="fa-solid fa-map-pin text-slate-300 dark:text-slate-600 text-2xl mb-2"
+                    ></i>
+                    <p class="text-sm text-slate-500 dark:text-slate-400">
+                      Aucun point de contrôle
+                    </p>
+                    <p class="text-[10px] text-slate-400 dark:text-slate-500 mt-1">
+                      Ajoutez votre premier point ci-dessus
+                    </p>
+                  </div>
+                }
+              }
+            </div>
+          }
+
+          <!-- Tab: Agents compact -->
+          @if (activeTab() === 'agents') {
+            <div>
+              <div class="grid grid-cols-2 gap-2 mb-3">
+                <div class="bg-emerald-50 dark:bg-emerald-900/30 rounded-lg p-2 text-center">
+                  <div class="text-base font-bold text-emerald-600 dark:text-emerald-400">
+                    {{ activeAgentsCount() }}
+                  </div>
+                  <div class="text-[9px] text-slate-500 dark:text-slate-400">En service</div>
+                </div>
+                <div class="bg-amber-50 dark:bg-amber-900/30 rounded-lg p-2 text-center">
+                  <div class="text-base font-bold text-amber-600 dark:text-amber-400">
+                    {{ idleAgentsCount() }}
+                  </div>
+                  <div class="text-[9px] text-slate-500 dark:text-slate-400">Disponibles</div>
+                </div>
+              </div>
+
+              @if (loadingAgents()) {
+                <div class="flex justify-center py-8">
+                  <div
+                    class="w-6 h-6 border-2 border-blue-100 dark:border-blue-900/30 border-t-blue-600 dark:border-t-blue-400 rounded-full animate-spin"
+                  ></div>
+                </div>
+              } @else {
+                @if (agents().length > 0) {
+                  <div class="space-y-2 max-h-80 overflow-y-auto">
+                    @for (agent of agents(); track agent.id) {
+                      <div
+                        class="bg-white dark:bg-slate-800 rounded-lg p-3 border border-slate-200 dark:border-slate-700"
+                      >
+                        <div class="flex items-center justify-between">
+                          <div class="flex items-center gap-2 min-w-0">
+                            <div
+                              class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold text-xs flex-shrink-0"
+                            >
+                              {{ (agent.user?.fullname || 'A')[0] | uppercase }}
+                            </div>
+                            <div class="min-w-0">
+                              <h4
+                                class="text-sm font-semibold text-slate-800 dark:text-white truncate"
+                              >
+                                {{ agent.user?.fullname || 'Nom non défini' }}
+                              </h4>
+                              <div class="text-[10px] text-slate-500 dark:text-slate-400">
+                                {{ agent.matricule || 'Matricule non défini' }}
+                              </div>
+                            </div>
+                          </div>
+                          <span
+                            [class]="getAgentStatusClass(agent.status)"
+                            class="px-2 py-0.5 rounded-lg text-[9px] font-semibold whitespace-nowrap ml-2"
+                          >
+                            {{ getAgentStatusLabel(agent.status) }}
+                          </span>
+                        </div>
+                      </div>
+                    }
+                  </div>
+                } @else {
+                  <div
+                    class="text-center py-10 bg-slate-50 dark:bg-slate-900/50 rounded-lg border border-dashed border-slate-200 dark:border-slate-700"
+                  >
+                    <i
+                      class="fa-solid fa-users text-slate-300 dark:text-slate-600 text-2xl mb-2"
+                    ></i>
+                    <p class="text-sm text-slate-500 dark:text-slate-400">Aucun agent associé</p>
+                  </div>
+                }
+              }
+            </div>
+          }
+
+          <!-- Tab: Plannings compact -->
+          @if (activeTab() === 'plannings') {
+            <div>
+              <div class="grid grid-cols-5 gap-1 mb-3">
+                <div class="bg-amber-50 dark:bg-amber-900/30 rounded-lg p-1.5 text-center">
+                  <div class="text-sm font-bold text-amber-600 dark:text-amber-400">
+                    {{ planningsByStatus().pending }}
+                  </div>
+                  <div class="text-[8px] text-slate-500 dark:text-slate-400">Attente</div>
+                </div>
+                <div class="bg-blue-50 dark:bg-blue-900/30 rounded-lg p-1.5 text-center">
+                  <div class="text-sm font-bold text-blue-600 dark:text-blue-400">
+                    {{ planningsByStatus().active }}
+                  </div>
+                  <div class="text-[8px] text-slate-500 dark:text-slate-400">Actifs</div>
+                </div>
+                <div class="bg-emerald-50 dark:bg-emerald-900/30 rounded-lg p-1.5 text-center">
+                  <div class="text-sm font-bold text-emerald-600 dark:text-emerald-400">
+                    {{ planningsByStatus().completed }}
+                  </div>
+                  <div class="text-[8px] text-slate-500 dark:text-slate-400">Terminés</div>
+                </div>
+                <div class="bg-rose-50 dark:bg-rose-900/30 rounded-lg p-1.5 text-center">
+                  <div class="text-sm font-bold text-rose-600 dark:text-rose-400">
+                    {{ planningsByStatus().missed }}
+                  </div>
+                  <div class="text-[8px] text-slate-500 dark:text-slate-400">Manqués</div>
+                </div>
+                <div class="bg-slate-50 dark:bg-slate-900/50 rounded-lg p-1.5 text-center">
+                  <div class="text-sm font-bold text-slate-600 dark:text-slate-400">
+                    {{ planningsByStatus().cancelled }}
+                  </div>
+                  <div class="text-[8px] text-slate-500 dark:text-slate-400">Annulés</div>
+                </div>
+              </div>
+
+              @if (upcomingPlannings().length > 0) {
+                <div class="bg-blue-50 dark:bg-blue-950/30 rounded-lg p-3 mb-3">
+                  <p
+                    class="text-[10px] font-semibold text-blue-700 dark:text-blue-400 uppercase tracking-wide mb-2"
+                  >
+                    <i class="fa-regular fa-calendar-week mr-1"></i> Prochains
+                  </p>
+                  <div class="space-y-1.5">
+                    @for (plan of upcomingPlannings(); track plan.id) {
+                      <div class="flex items-center justify-between text-xs">
+                        <div>
+                          <span class="font-medium text-slate-700 dark:text-slate-300">{{
+                            formatDate(plan.workDate)
+                          }}</span>
+                          <span class="text-slate-400 dark:text-slate-500 mx-1">→</span>
+                          <span class="text-slate-600 dark:text-slate-400"
+                            >{{ plan.startTime }} - {{ plan.endTime }}</span
+                          >
+                        </div>
+                        <span
+                          class="text-[10px] text-slate-500 dark:text-slate-400 truncate ml-2"
+                          >{{ plan.agent?.user?.fullname || 'Agent' }}</span
+                        >
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
+
+              @if (loadingPlannings()) {
+                <div class="flex justify-center py-8">
+                  <div
+                    class="w-6 h-6 border-2 border-blue-100 dark:border-blue-900/30 border-t-blue-600 dark:border-t-blue-400 rounded-full animate-spin"
+                  ></div>
+                </div>
+              } @else {
+                @if (plannings().length > 0) {
+                  <div class="space-y-1.5 max-h-64 overflow-y-auto">
+                    @for (plan of plannings(); track plan.id) {
+                      <div
+                        class="bg-white dark:bg-slate-800 rounded-lg p-2 border border-slate-200 dark:border-slate-700"
+                      >
+                        <div class="flex items-center justify-between">
+                          <div class="flex items-center gap-2 text-xs">
+                            <i
+                              class="fa-regular fa-calendar-day text-blue-500 dark:text-blue-400"
+                            ></i>
+                            <span class="font-medium text-slate-700 dark:text-slate-300">{{
+                              formatDate(plan.workDate)
+                            }}</span>
+                            <span class="text-slate-400 dark:text-slate-500">•</span>
+                            <span class="text-slate-600 dark:text-slate-400"
+                              >{{ plan.startTime }} - {{ plan.endTime }}</span
+                            >
+                          </div>
+                          <span
+                            [class]="getPlanningStatusClass(plan.status)"
+                            class="px-1.5 py-0.5 rounded text-[9px] font-semibold"
+                          >
+                            {{ getPlanningStatusLabel(plan.status) }}
+                          </span>
+                        </div>
+                        <div
+                          class="text-[10px] text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-3"
+                        >
+                          <span
+                            ><i class="fa-solid fa-user mr-1"></i
+                            >{{ plan.agent?.user?.fullname || 'Agent' }}</span
+                          >
+                          <span
+                            ><i class="fa-solid fa-clock mr-1"></i>GPS:
+                            {{ plan.gpsFrequencySeconds }}s</span
+                          >
+                        </div>
+                      </div>
+                    }
+                  </div>
+                } @else {
+                  <div
+                    class="text-center py-10 bg-slate-50 dark:bg-slate-900/50 rounded-lg border border-dashed border-slate-200 dark:border-slate-700"
+                  >
+                    <i
+                      class="fa-regular fa-calendar-alt text-slate-300 dark:text-slate-600 text-2xl mb-2"
+                    ></i>
+                    <p class="text-sm text-slate-500 dark:text-slate-400">Aucun planning</p>
+                  </div>
+                }
+              }
+            </div>
+          }
+
+          <!-- Actions compact -->
+          <div
+            class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-700 flex justify-end gap-2"
+          >
+            <button
+              (click)="refreshData()"
+              class="px-3 py-1.5 text-xs font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition-colors flex items-center gap-1"
+              [disabled]="loading()"
+            >
+              <i class="fa-solid fa-rotate-right text-[10px]" [class.fa-spin]="loading()"></i>
+              Actualiser
+            </button>
+            <button
+              (click)="goBack()"
+              class="px-3 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
+            >
+              Retour
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</div>

@@ -1,0 +1,42 @@
+<div class="notif-wrapper">
+  @for (n of notifications(); track n.id) {
+    <div 
+      class="notif"
+      [class]="{
+        'notif-success': n.type === 'success',
+        'notif-error': n.type === 'error',
+        'notif-warning': n.type === 'warning',
+        'notif-info': n.type === 'info',
+        'notif-closing': isClosing(n.id)
+      }"
+      role="alert"
+    >
+      <div class="notif-icon">
+        <i class="fa-solid" [class]="{
+          'fa-check': n.type === 'success',
+          'fa-xmark': n.type === 'error',
+          'fa-triangle-exclamation': n.type === 'warning',
+          'fa-info': n.type === 'info'
+        }"></i>
+      </div>
+
+      <div class="notif-content">
+        @if (n.title) { 
+          <h4 class="notif-title">{{ n.title }}</h4> 
+        }
+        <p class="notif-message">{{ n.message }}</p>
+      </div>
+
+      <button class="notif-close" (click)="close(n.id)" aria-label="Fermer">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      @if (n.duration! > 0) {
+        <div 
+          class="notif-progress"
+          [style.animation-duration.ms]="n.duration"
+        ></div>
+      }
+    </div>
+  }
+</div>

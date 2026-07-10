@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 600">
+  <path d="M250,110 L160,160 L220,410 L250,380 L195,185 L250,155 Z" fill="#E94E24" />
+  
+  <path d="M265,135 L310,165 L250,440 L225,415 L285,160 Z" fill="#3671C6" />
+
+  <text x="250" y="550" 
+        fill="#1A1A1A" 
+        font-family="Arial, sans-serif" 
+        font-weight="bold" 
+        font-size="80" 
+        text-anchor="middle" 
+        letter-spacing="5">VIGILO</text>
+</svg>

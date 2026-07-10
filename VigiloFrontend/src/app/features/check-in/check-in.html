@@ -1,0 +1,389 @@
+<div class="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50/30 dark:bg-gradient-to-br dark:from-slate-900 dark:to-slate-800">
+  <div class="container mx-auto px-4 py-6">
+
+    <!-- ÉTAT INITIAL (Pas de session active) -->
+    @if (!sessionActive()) {
+      <div class="max-w-md mx-auto space-y-4">
+        
+        <!-- En-tête avec illustration -->
+        <div class="text-center">
+          <div class="relative inline-block">
+            <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white mx-auto shadow-lg shadow-blue-500/30">
+              <i class="fa-solid fa-qrcode text-3xl"></i>
+            </div>
+            <div class="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-green-500 animate-pulse"></div>
+          </div>
+          <h1 class="text-xl font-bold text-slate-800 dark:text-white mt-4">Scan & Go</h1>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Scannez un QR code pour démarrer votre mission</p>
+        </div>
+
+        <!-- Carte de bienvenue -->
+        <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm">
+          <div class="p-5">
+            <div class="flex items-center gap-3 mb-4">
+              <div class="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                <i class="fa-regular fa-hand-peace text-blue-600 dark:text-blue-400 text-lg"></i>
+              </div>
+              <div>
+                <p class="text-sm font-semibold text-slate-800 dark:text-white">Bonjour !</p>
+                <p class="text-[11px] text-slate-500 dark:text-slate-400">Prêt à commencer votre journée</p>
+              </div>
+            </div>
+
+            <div class="space-y-2 text-xs text-slate-600 dark:text-slate-400">
+              <div class="flex items-center gap-2">
+                <i class="fa-regular fa-circle-check text-emerald-500 text-[10px]"></i>
+                <span>Scannez le QR code du site</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <i class="fa-regular fa-circle-check text-emerald-500 text-[10px]"></i>
+                <span>Activez la géolocalisation</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <i class="fa-regular fa-circle-check text-emerald-500 text-[10px]"></i>
+                <span>Validez votre présence</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Carte d'info - Astuces -->
+        <div class="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/50 dark:to-orange-950/50 rounded-xl border border-amber-200 dark:border-amber-800 p-3">
+          <div class="flex items-start gap-2">
+            <div class="w-6 h-6 rounded-lg bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center flex-shrink-0">
+              <i class="fa-regular fa-lightbulb text-amber-600 dark:text-amber-400 text-xs"></i>
+            </div>
+            <div>
+              <p class="text-xs font-semibold text-amber-800 dark:text-amber-300">Astuce</p>
+              <p class="text-[10px] text-amber-700 dark:text-amber-400">Assurez-vous d'être sur place avant de scanner le code QR</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bouton scan -->
+        <button
+          (click)="openScannerModal()"
+          class="w-full py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl text-sm font-semibold hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2 group"
+        >
+          <i class="fa-solid fa-qrcode text-sm group-hover:scale-110 transition-transform"></i>
+          Démarrer le scan
+        </button>
+
+        <!-- Dernières activités (si existantes) -->
+        @if (lastActivities().length > 0) {
+          <div class="pt-2">
+            <p class="text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">Dernières missions</p>
+            <div class="space-y-2">
+              @for (activity of lastActivities(); track activity.id) {
+                <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-3">
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                      <div class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-700 flex items-center justify-center">
+                        <i class="fa-solid fa-building text-slate-500 dark:text-slate-400 text-xs"></i>
+                      </div>
+                      <div>
+                        <p class="text-xs font-medium text-slate-800 dark:text-white">{{ activity.siteName }}</p>
+                        <p class="text-[9px] text-slate-400 dark:text-slate-500">{{ activity.date | date:'dd/MM/yyyy à HH:mm' }}</p>
+                      </div>
+                    </div>
+                    <div class="px-2 py-1 bg-emerald-50 dark:bg-emerald-900/30 rounded-full">
+                      <span class="text-[8px] font-medium text-emerald-600 dark:text-emerald-400">Terminé</span>
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- ÉTAT SESSION ACTIVE -->
+    @if (sessionActive() && siteInfo()) {
+      <div class="max-w-md mx-auto space-y-4">
+
+        <!-- Bannière de mission -->
+        <div class="bg-gradient-to-r from-orange-500 to-red-500 rounded-xl p-3 text-white">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-[9px] font-semibold uppercase tracking-wide">Mission en cours</p>
+              <p class="text-xs font-medium">Scannez un autre site pour continuer</p>
+            </div>
+            <i class="fa-solid fa-arrow-right text-white/80 text-sm"></i>
+          </div>
+        </div>
+
+        <!-- Carte du site avec plus d'infos -->
+        <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm">
+          <div class="relative">
+            <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-orange-500/5 to-red-500/5 rounded-full -mr-8 -mt-8"></div>
+            <div class="p-5">
+              <div class="flex items-start justify-between mb-4">
+                <div class="flex items-center gap-2">
+                  <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center shadow-md">
+                    <span class="text-base font-bold text-white">
+                      {{ siteInfo()?.code }}
+                    </span>
+                  </div>
+                  <div>
+                    <p class="text-[9px] font-semibold text-orange-600 dark:text-orange-400 uppercase">Site actuel</p>
+                    <h2 class="text-base font-bold text-slate-800 dark:text-white">
+                      {{ siteInfo()?.name }}
+                    </h2>
+                  </div>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-2 gap-3 mb-4">
+                <div class="flex items-center gap-2 text-[11px] text-slate-600 dark:text-slate-400">
+                  <i class="fa-regular fa-clock text-orange-500 text-xs"></i>
+                  <span>Début: {{ sessionStartTime() | date:'HH:mm' }}</span>
+                </div>
+                <div class="flex items-center gap-2 text-[11px] text-slate-600 dark:text-slate-400">
+                  <i class="fa-regular fa-calendar text-orange-500 text-xs"></i>
+                  <span>{{ sessionStartTime() | date:'dd/MM/yyyy' }}</span>
+                </div>
+              </div>
+
+              <div class="flex items-start gap-2 p-3 bg-slate-50 dark:bg-slate-900/50 rounded-xl">
+                <i class="fa-solid fa-location-dot text-orange-500 text-xs mt-0.5"></i>
+                <p class="text-xs text-slate-700 dark:text-slate-300">{{ siteInfo()?.address }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Carte GPS améliorée -->
+        <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm">
+          <div class="p-4">
+            <div class="flex items-center justify-between mb-3">
+              <div class="flex items-center gap-2">
+                <div class="w-1.5 h-4 bg-emerald-500 rounded-full"></div>
+                <h3 class="text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Géolocalisation</h3>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <div class="relative">
+                  <div class="w-2 h-2 rounded-full bg-emerald-500"></div>
+                  <div class="absolute inset-0 w-2 h-2 rounded-full bg-emerald-500 animate-ping"></div>
+                </div>
+                <span class="text-[9px] font-medium text-emerald-600 dark:text-emerald-400">Position LIVE</span>
+              </div>
+            </div>
+
+            <!-- Précision avec indicateur visuel -->
+            <div class="mb-3">
+              <div class="flex justify-between text-[10px] mb-1.5">
+                <span class="text-slate-500 dark:text-slate-400">Précision GPS</span>
+                <div class="flex items-center gap-1">
+                                  <span class="text-slate-700 dark:text-slate-300 font-semibold">
+                      {{ getAccuracy() ? (getAccuracy() | number: '1.0-0') : '--' }} m
+                    </span>
+                  @if (getAccuracy() && getAccuracy()! < 15) {
+                    <i class="fa-solid fa-circle-check text-emerald-500 text-[9px]"></i>
+                  } @else if (getAccuracy() && getAccuracy()! < 30) {
+                    <i class="fa-solid fa-triangle-exclamation text-yellow-500 text-[9px]"></i>
+                  } @else {
+                    <i class="fa-solid fa-circle-exclamation text-red-500 text-[9px]"></i>
+                  }
+                </div>
+              </div>
+              <div class="bg-slate-100 dark:bg-slate-700 rounded-full h-1.5 overflow-hidden">
+                <div
+                  class="h-full rounded-full transition-all duration-500"
+                  [class.bg-emerald-500]="getAccuracy()! < 15"
+                  [class.bg-yellow-500]="getAccuracy()! >= 15 && getAccuracy()! < 30"
+                  [class.bg-red-500]="getAccuracy()! >= 30"
+                  [style.width.%]="getAccuracyBar()"
+                ></div>
+              </div>
+              <p class="text-[9px] text-slate-400 dark:text-slate-500 mt-1">
+                <i class="fa-regular fa-info-circle"></i>
+                {{ getAccuracy()! < 15 ? 'Précision excellente' : getAccuracy()! < 30 ? 'Précision moyenne' : 'Signal GPS faible' }}
+              </p>
+            </div>
+
+            <!-- Coordonnées -->
+            <div class="grid grid-cols-2 gap-3 pt-2 border-t border-slate-100 dark:border-slate-700">
+              <div class="bg-slate-50 dark:bg-slate-900/50 rounded-lg p-2">
+                <p class="text-[8px] text-slate-400 dark:text-slate-500 uppercase tracking-wide mb-1">Latitude</p>
+                <p class="text-slate-700 dark:text-slate-300 font-mono text-xs font-medium">
+                  {{ getLatitude()?.toFixed(6) ?? '--' }}
+                </p>
+              </div>
+              <div class="bg-slate-50 dark:bg-slate-900/50 rounded-lg p-2">
+                <p class="text-[8px] text-slate-400 dark:text-slate-500 uppercase tracking-wide mb-1">Longitude</p>
+                <p class="text-slate-700 dark:text-slate-300 font-mono text-xs font-medium">
+                  {{ getLongitude()?.toFixed(6) ?? '--' }}
+                </p>
+              </div>
+            </div>
+
+            <!-- Bouton rafraîchir -->
+            <button
+              (click)="refreshLocation()"
+              class="w-full mt-3 py-1.5 text-[10px] text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 transition-colors flex items-center justify-center gap-1"
+            >
+              <i class="fa-solid fa-rotate-right text-[9px]"></i>
+              Actualiser la position
+            </button>
+          </div>
+        </div>
+
+        <!-- Statistiques de la session -->
+        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/50 dark:to-indigo-950/50 rounded-xl p-3">
+          <div class="grid grid-cols-2 gap-3">
+            <div class="text-center">
+              <p class="text-[9px] text-slate-500 dark:text-slate-400 uppercase">Sites scannés</p>
+              <p class="text-xl font-bold text-indigo-600 dark:text-indigo-400">{{ scannedSitesCount() }}</p>
+            </div>
+            <div class="text-center">
+              <p class="text-[9px] text-slate-500 dark:text-slate-400 uppercase">Durée session</p>
+              <p class="text-xl font-bold text-indigo-600 dark:text-indigo-400">{{ sessionDuration() }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bouton scanner -->
+        <button
+          (click)="openScannerModal()"
+          class="w-full py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl text-sm font-semibold hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2 group"
+        >
+          <i class="fa-solid fa-qrcode text-sm group-hover:scale-110 transition-transform"></i>
+          Scanner un nouveau site
+        </button>
+
+      </div>
+    }
+
+    <!-- Message d'erreur -->
+    @if (errorMessage()) {
+      <div class="max-w-md mx-auto mt-4">
+        <div class="bg-red-50 dark:bg-red-900/30 border-l-4 border-red-500 rounded-lg p-3 animate-shake">
+          <div class="flex items-start gap-2">
+            <i class="fa-solid fa-circle-exclamation text-red-500 text-xs mt-0.5"></i>
+            <div class="flex-1">
+              <p class="text-xs font-medium text-red-800 dark:text-red-300">Erreur</p>
+              <p class="text-xs text-red-700 dark:text-red-400">{{ errorMessage() }}</p>
+            </div>
+            <button (click)="clearError()" class="text-red-400 hover:text-red-600 dark:text-red-500 dark:hover:text-red-400">
+              <i class="fa-solid fa-times text-xs"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+
+  </div>
+
+  <!-- MODAL SCANNER -->
+  @if (showScannerModal()) {
+    <div
+      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm transition-all duration-300"
+      (click)="closeScannerModal()"
+    >
+      <div
+        class="relative w-full max-w-[340px] bg-gradient-to-br from-white via-white to-slate-50 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800 rounded-2xl shadow-2xl transform transition-all duration-300 animate-fade-in-up"
+        (click)="$event.stopPropagation()"
+      >
+
+        <!-- Bouton fermer -->
+        <button
+          (click)="closeScannerModal()"
+          class="absolute -top-3 -right-3 w-7 h-7 rounded-full bg-white dark:bg-slate-800 shadow-lg hover:shadow-xl text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300 flex items-center justify-center z-10 transition-all duration-200 hover:scale-110"
+        >
+          <i class="fa-solid fa-times text-xs"></i>
+        </button>
+
+        <!-- Header avec gradient -->
+        <div class="relative overflow-hidden rounded-t-2xl">
+          <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-500/10 to-purple-500/10 rounded-full -mr-16 -mt-16"></div>
+          <div class="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-indigo-500/10 to-pink-500/10 rounded-full -ml-12 -mb-12"></div>
+          
+          <div class="relative px-5 pt-5 pb-4">
+            <div class="flex items-center gap-3">
+              <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/25">
+                <i class="fa-solid fa-qrcode text-white text-lg"></i>
+              </div>
+              <div>
+                <h3 class="text-base font-bold text-slate-800 dark:text-white">Scanner QR Code</h3>
+                <p class="text-xs text-slate-500 dark:text-slate-400">Placez le code bien en évidence</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CAMÉRA -->
+        <div class="px-5 pb-5">
+          <div class="relative bg-gradient-to-br from-slate-900 to-slate-800 rounded-xl overflow-hidden shadow-xl" style="aspect-ratio: 1/1">
+
+            @if (cameraEnabled()) {
+              <zxing-scanner
+                [device]="selectedDevice!"
+                [formats]="formats"
+                [autofocusEnabled]="true"
+                [enable]="scannerEnabled()"
+                (scanSuccess)="onScanSuccess($event)"
+                (camerasFound)="onCamerasFound($event)"
+                class="w-full h-full object-cover"
+              ></zxing-scanner>
+            } @else {
+              <div class="w-full h-full bg-gradient-to-br from-slate-800 to-slate-900 flex flex-col items-center justify-center">
+                <div class="w-16 h-16 rounded-full bg-white/10 flex items-center justify-center mb-3">
+                  <i class="fa-solid fa-camera-slash text-3xl text-slate-500"></i>
+                </div>
+                <p class="text-sm font-medium text-slate-400">Caméra inaccessible</p>
+                <p class="text-xs text-slate-500 mt-1">Vérifiez vos autorisations</p>
+              </div>
+            }
+
+            <!-- Cadre scan avec animation -->
+            <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <div class="relative w-36 h-36">
+                <div class="absolute top-0 left-0 w-6 h-6 border-t-3 border-l-3 border-blue-500 rounded-tl-lg"></div>
+                <div class="absolute top-0 right-0 w-6 h-6 border-t-3 border-r-3 border-blue-500 rounded-tr-lg"></div>
+                <div class="absolute bottom-0 left-0 w-6 h-6 border-b-3 border-l-3 border-blue-500 rounded-bl-lg"></div>
+                <div class="absolute bottom-0 right-0 w-6 h-6 border-b-3 border-r-3 border-blue-500 rounded-br-lg"></div>
+                <div class="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-transparent via-blue-500 to-transparent animate-scan"></div>
+              </div>
+            </div>
+
+            <!-- Overlay avec instructions -->
+            <div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/60 to-transparent p-3">
+              <div class="flex items-center justify-center gap-2">
+                <i class="fa-solid fa-lightbulb text-yellow-400 text-xs"></i>
+                <p class="text-white text-xs font-medium">Bien éclairer le code QR</p>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+  }
+
+  <!-- LOADING -->
+  @if (isLoading()) {
+    <div class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex flex-col items-center justify-center">
+      <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 flex flex-col items-center shadow-2xl">
+        <div class="w-12 h-12 border-3 border-blue-100 dark:border-blue-900/30 border-t-blue-600 rounded-full animate-spin"></div>
+        <p class="text-sm font-medium text-slate-700 dark:text-white mt-3">Validation en cours...</p>
+        <p class="text-[10px] text-slate-400 dark:text-slate-500 mt-1">Veuillez patienter</p>
+      </div>
+    </div>
+  }
+
+  <!-- SUCCESS -->
+  @if (showSuccess()) {
+    <div class="fixed inset-0 bg-gradient-to-br from-emerald-500 to-teal-600 z-50 flex items-center justify-center animate-fadeIn">
+      <div class="text-center transform animate-bounce-in">
+        <div class="w-20 h-20 rounded-full bg-white/20 mx-auto flex items-center justify-center mb-4 shadow-lg">
+          <i class="fa-solid fa-check text-white text-4xl"></i>
+        </div>
+        <h2 class="text-2xl font-bold text-white mb-1">Mission démarrée !</h2>
+        <p class="text-emerald-100 text-sm">Bonne journée sur le terrain</p>
+        <div class="mt-4 w-12 h-1 bg-white/30 rounded-full mx-auto"></div>
+      </div>
+    </div>
+  }
+</div>

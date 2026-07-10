@@ -1,0 +1,698 @@
+<div class="min-h-screen bg-white font-sans antialiased">
+  <!-- ==================== HEADER ==================== -->
+  <header
+    class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-100 shadow-sm"
+  >
+    <nav class="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16 lg:h-20">
+        <!-- Logo & Brand -->
+        <div class="flex items-center gap-3">
+          <div
+            class="flex items-center cursor-pointer group"
+            (click)="scrollTo('Accueil', '#hero')"
+          >
+            <div class="relative">
+              <div
+                class="absolute -inset-1 bg-gradient-to-r from-blue-600 to-orange-500 rounded-lg blur opacity-25 group-hover:opacity-75 transition duration-300"
+              ></div>
+              <div
+                class="relative w-9 h-9 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center shadow-md"
+              >
+                <i class="fas fa-shield-alt text-white text-sm"></i>
+              </div>
+            </div>
+            <span
+              class="ml-2.5 text-xl font-black tracking-tight bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent"
+              >VIGILO</span
+            >
+          </div>
+          <div class="hidden md:block h-6 w-px bg-slate-200"></div>
+          <span
+            class="hidden md:flex items-center gap-1.5 text-xs font-semibold text-slate-400 tracking-wide"
+          >
+            <i class="fas fa-shield-halved text-orange-500 text-[11px]"></i>
+            Sécurité connectée
+          </span>
+        </div>
+
+        <!-- Desktop Menu -->
+        <div
+          class="hidden lg:flex items-center gap-1 bg-slate-50/80 rounded-full p-1 border border-slate-100"
+        >
+          @for (item of menuItems; track item.label) {
+            <button
+              (click)="scrollTo(item.label, item.link)"
+              class="px-5 py-2 text-sm font-semibold rounded-full transition-all duration-200 flex items-center gap-2"
+              [class.bg-white]="activeSection === item.label"
+              [class.text-slate-800]="activeSection === item.label"
+              [class.shadow-sm]="activeSection === item.label"
+              [class.text-slate-500]="activeSection !== item.label"
+              [class.hover:text-slate-700]="activeSection !== item.label"
+              [class.hover:bg-white/50]="activeSection !== item.label"
+            >
+              <i
+                [class]="item.icon"
+                [class.text-blue-500]="activeSection === item.label && item.label === 'Accueil'"
+                [class.text-orange-400]="
+                  activeSection === item.label && item.label === 'Présentation'
+                "
+                [class.text-blue-400]="activeSection === item.label && item.label === 'Contact'"
+              ></i>
+              <span>{{ item.label }}</span>
+            </button>
+          }
+        </div>
+
+        <!-- Desktop Auth Buttons -->
+        <div class="hidden lg:flex items-center gap-3">
+          <button
+            routerLink="/login"
+            class="px-5 py-2 text-sm font-semibold text-slate-600 hover:text-blue-600 transition-colors flex items-center gap-2"
+          >
+            <i class="fas fa-user-circle"></i>
+            Connexion
+          </button>
+          <button
+            routerLink="/login"
+            [queryParams]="{ action: 'register' }"
+            class="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-2 rounded-full hover:shadow-lg hover:shadow-blue-500/25 transition-all duration-200 text-sm font-semibold flex items-center gap-2"
+          >
+            <i class="fas fa-rocket text-orange-200"></i>
+            Essai gratuit
+          </button>
+        </div>
+
+        <!-- Mobile Menu Button -->
+        <button
+          (click)="toggleMobileMenu()"
+          class="lg:hidden w-10 h-10 flex items-center justify-center text-slate-600 bg-slate-50 rounded-xl hover:bg-slate-100 border border-slate-200 transition-all"
+          [attr.aria-expanded]="mobileMenuOpen"
+        >
+          <i class="fas text-lg" [ngClass]="mobileMenuOpen ? 'fa-times' : 'fa-bars'"></i>
+        </button>
+      </div>
+
+      <!-- Mobile Menu Panel -->
+      @if (mobileMenuOpen) {
+        <div
+          class="lg:hidden fixed inset-x-0 top-16 bg-white border-b border-slate-200 shadow-xl z-50 animate-in slide-in-from-top duration-200"
+        >
+          <div class="flex flex-col p-4 space-y-2">
+            @for (item of menuItems; track item.label) {
+              <a
+                (click)="closeMobileMenu(); scrollTo(item.label, item.link)"
+                class="flex items-center gap-3 px-4 py-3 text-slate-700 hover:bg-blue-50 rounded-lg transition-colors cursor-pointer"
+              >
+                <i [class]="item.icon + ' w-5 text-blue-500'"></i>
+                <span class="font-medium">{{ item.label }}</span>
+              </a>
+            }
+            <div class="pt-4 space-y-2 border-t border-slate-100">
+              <button
+                routerLink="/login"
+                class="w-full py-3 flex items-center justify-center gap-2 text-slate-700 font-medium border border-slate-300 bg-white rounded-lg hover:bg-slate-50 transition-colors"
+              >
+                <i class="fas fa-user"></i> Connexion
+              </button>
+              <button
+                routerLink="/login"
+                [queryParams]="{ action: 'register' }"
+                class="w-full py-3 flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-medium rounded-lg hover:shadow-lg transition-all"
+              >
+                <i class="fas fa-rocket"></i> Essai gratuit
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+    </nav>
+  </header>
+
+  <!-- ==================== HERO SECTION ==================== -->
+  <section
+    id="hero"
+    class="scroll-mt-20 relative overflow-hidden bg-gradient-to-br from-slate-50 via-white to-orange-50/30 py-12 lg:py-16"
+  >
+    <!-- Background decorative elements -->
+    <div
+      class="absolute top-0 right-0 -mt-20 -mr-20 w-80 h-80 bg-blue-600 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-pulse"
+    ></div>
+    <div
+      class="absolute bottom-0 left-0 -mb-20 -ml-20 w-80 h-80 bg-orange-500 rounded-full mix-blend-multiply filter blur-3xl opacity-10"
+    ></div>
+
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 relative">
+      <div class="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+        <!-- Left Content -->
+        <div class="space-y-6">
+          <div
+            class="inline-flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur-sm rounded-full shadow-sm border border-slate-100"
+          >
+            <span class="relative flex h-2.5 w-2.5">
+              <span
+                class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"
+              ></span>
+              <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-blue-600"></span>
+            </span>
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-600"
+              >Leader en Guinée 🇬🇳</span
+            >
+          </div>
+
+          <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black leading-[1.2] tracking-tight">
+            <span class="bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent"
+              >Protection</span
+            >
+            <br />
+            <span
+              class="bg-gradient-to-r from-orange-500 to-orange-600 bg-clip-text text-transparent"
+              >intelligente</span
+            >
+            <br />
+            <span class="bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent"
+              >pour vos sites</span
+            >
+          </h1>
+          <p
+            class="text-base lg:text-lg text-slate-600 leading-relaxed max-w-lg border-l-4 border-orange-400 pl-5"
+          >
+            Centralisez et sécurisez la gestion de vos sites industriels, commerciaux et
+            résidentiels grâce à une plateforme SaaS moderne de supervision des agents, des
+            activités et des incidents en temps réel.
+          </p>
+
+          <div class="flex flex-wrap gap-4 pt-2">
+            <button
+              (click)="scrollTo('Contact', '#contact')"
+              class="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 lg:px-8 py-3 rounded-xl hover:shadow-xl hover:shadow-blue-500/30 transition-all duration-200 font-bold flex items-center gap-2 transform hover:-translate-y-0.5"
+            >
+              <i class="fas fa-calendar-check"></i>
+              Demander une démo
+            </button>
+            <button
+              (click)="scrollTo('Présentation', '#solutions')"
+              class="border-2 border-slate-200 bg-white text-slate-700 px-6 lg:px-8 py-3 rounded-xl hover:bg-slate-50 hover:border-slate-300 transition-all duration-200 font-semibold flex items-center gap-2"
+            >
+              <i class="fas fa-play-circle text-blue-500"></i>
+              Découvrir
+            </button>
+          </div>
+
+          <!-- Trust indicators -->
+          <div class="flex items-center gap-6 pt-4">
+            <div class="flex -space-x-2">
+              <div
+                class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white text-[10px] font-bold border-2 border-white"
+              >
+                K
+              </div>
+              <div
+                class="w-8 h-8 rounded-full bg-gradient-to-br from-orange-400 to-orange-500 flex items-center justify-center text-white text-[10px] font-bold border-2 border-white"
+              >
+                M
+              </div>
+              <div
+                class="w-8 h-8 rounded-full bg-gradient-to-br from-slate-500 to-slate-600 flex items-center justify-center text-white text-[10px] font-bold border-2 border-white"
+              >
+                A
+              </div>
+            </div>
+            <div>
+              <p class="text-sm font-semibold text-slate-700">
+                +50 entreprises nous font confiance
+              </p>
+              <div class="flex gap-0.5 mt-1">
+                <i class="fas fa-star text-yellow-400 text-xs"></i>
+                <i class="fas fa-star text-yellow-400 text-xs"></i>
+                <i class="fas fa-star text-yellow-400 text-xs"></i>
+                <i class="fas fa-star text-yellow-400 text-xs"></i>
+                <i class="fas fa-star text-yellow-400 text-xs"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Image -->
+        <div class="relative hidden lg:block">
+          <div
+            class="relative rounded-2xl overflow-hidden shadow-2xl transform rotate-1 hover:rotate-0 transition duration-500"
+          >
+            <div
+              class="absolute inset-0 bg-gradient-to-tr from-blue-600/20 to-orange-500/20 z-10"
+            ></div>
+            <img
+              src="assets/imgSecu1.png"
+              alt="Agent de sécurité professionnel VIGILO"
+              class="relative w-full object-cover h-[420px]"
+            />
+          </div>
+          <!-- Floating badge -->
+          <div
+            class="absolute -bottom-5 -left-5 bg-white rounded-xl shadow-xl p-3 flex items-center gap-3 animate-bounce"
+          >
+            <div class="w-9 h-9 bg-green-100 rounded-full flex items-center justify-center">
+              <i class="fas fa-check-circle text-green-600 text-lg"></i>
+            </div>
+            <div>
+              <p class="text-xs font-bold text-slate-500">Sécurité 24/7</p>
+              <p class="text-sm font-black text-slate-800">Intervention rapide</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== SOLUTIONS SECTION ==================== -->
+  <section id="solutions" class="scroll-mt-20 py-20 lg:py-28 bg-white">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+      <!-- Section Header -->
+      <div class="text-center max-w-2xl mx-auto mb-16">
+        <div
+          class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-orange-50 text-orange-600 font-bold text-xs uppercase tracking-wider border border-orange-100 mb-5"
+        >
+          <i class="fas fa-crown"></i>
+          Plateforme SaaS
+        </div>
+        <h2 class="text-3xl lg:text-4xl font-black text-slate-900 mb-5 tracking-tight">
+          Centralisez,
+          <span
+            class="bg-gradient-to-r from-orange-500 to-orange-600 bg-clip-text text-transparent"
+          >
+            contrôlez
+          </span>
+          et sécurisez vos opérations
+        </h2>
+        <p class="text-base lg:text-lg text-slate-600 leading-relaxed">
+          VIGILO est une plateforme SaaS de gestion de sécurité qui vous permet de superviser vos
+          agents, suivre les activités sur site, tracer les actions et réagir en temps réel aux
+          incidents.
+        </p>
+      </div>
+
+      <!-- Cas d'usage -->
+      <div class="mb-24">
+        <div class="flex items-center justify-between mb-10 border-b border-slate-100 pb-4">
+          <h3 class="text-xl lg:text-2xl font-bold text-slate-800 flex items-center gap-3">
+            <span class="w-10 h-[3px] bg-orange-500 rounded-full"></span>
+            Cas d'usage principaux
+          </h3>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+          @for (usage of useCases; track usage.title) {
+            <div
+              class="group relative bg-white border border-slate-200 rounded-2xl p-6 transition-all duration-300 hover:-translate-y-2 hover:shadow-xl hover:shadow-slate-200 cursor-default overflow-hidden"
+            >
+              <div
+                class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-orange-400 scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-300"
+              ></div>
+              <div
+                class="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center mb-5 shadow-md group-hover:shadow-lg transition-all"
+              >
+                <i [class]="usage.icon + ' text-white text-xl'"></i>
+              </div>
+              <h4 class="text-lg font-bold text-slate-800 mb-2">{{ usage.title }}</h4>
+              <p class="text-slate-500 text-sm leading-relaxed">{{ usage.description }}</p>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Fonctionnalités clés -->
+      <div class="mb-24">
+        <div class="flex items-center justify-between mb-10 border-b border-slate-100 pb-4">
+          <h3 class="text-xl lg:text-2xl font-bold text-slate-800 flex items-center gap-3">
+            <span class="w-10 h-[3px] bg-blue-500 rounded-full"></span>
+            Fonctionnalités puissantes
+          </h3>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+          @for (feature of features; track feature.titre) {
+            <div
+              class="group flex gap-5 p-5 bg-white border border-slate-200 rounded-2xl hover:border-blue-200 hover:shadow-lg transition-all duration-300 cursor-default"
+            >
+              <div
+                class="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center flex-shrink-0 shadow-md group-hover:scale-110 transition-transform"
+              >
+                <i [class]="feature.icon + ' text-white text-lg'"></i>
+              </div>
+              <div>
+                <div class="flex items-center gap-2 mb-2">
+                  <h4 class="text-base lg:text-lg font-bold text-slate-800">{{ feature.titre }}</h4>
+                  <span
+                    class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-orange-50 text-orange-600 border border-orange-100"
+                    >{{ feature.tag }}</span
+                  >
+                </div>
+                <p class="text-slate-500 text-sm leading-relaxed">{{ feature.description }}</p>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Avantages -->
+      <div>
+        <div class="flex items-center justify-between mb-10 border-b border-slate-100 pb-4">
+          <h3 class="text-xl lg:text-2xl font-bold text-slate-800 flex items-center gap-3">
+            <span class="w-10 h-[3px] bg-emerald-500 rounded-full"></span>
+            Pourquoi les entreprises nous choisissent
+          </h3>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          @for (benefit of benefits; track benefit.titre; let idx = $index) {
+            <div
+              class="group relative bg-white border border-slate-200 rounded-2xl p-7 hover:-translate-y-2 hover:shadow-2xl transition-all duration-300 cursor-default overflow-hidden"
+            >
+              <div
+                class="absolute top-0 right-0 text-7xl font-black text-slate-100 group-hover:text-slate-200 transition-colors"
+              >
+                0{{ idx + 1 }}
+              </div>
+              <div
+                class="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center mb-5 shadow-md relative z-10"
+                [class.from-indigo-500]="benefit.color === 'indigo'"
+                [class.to-indigo-600]="benefit.color === 'indigo'"
+                [class.from-orange-500]="benefit.color === 'orange'"
+                [class.to-orange-600]="benefit.color === 'orange'"
+                [class.from-blue-500]="benefit.color === 'blue'"
+                [class.to-blue-600]="benefit.color === 'blue'"
+              >
+                <i [class]="benefit.icon + ' text-white text-xl'"></i>
+              </div>
+              <h4 class="text-lg font-bold text-slate-800 mb-2 relative z-10">
+                {{ benefit.titre }}
+              </h4>
+              <p class="text-slate-500 text-sm leading-relaxed relative z-10">
+                {{ benefit.description }}
+              </p>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== STATS SECTION ==================== -->
+  <section class="py-16 bg-gradient-to-r from-slate-900 to-slate-800 text-white">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+        <div class="space-y-2">
+          <div
+            class="text-3xl lg:text-4xl font-black bg-gradient-to-r from-blue-400 to-orange-400 bg-clip-text text-transparent"
+          >
+            +50
+          </div>
+          <p class="text-xs font-semibold uppercase tracking-wider text-slate-300">
+            Entreprises sécurisées
+          </p>
+        </div>
+
+        <div class="space-y-2">
+          <div
+            class="text-3xl lg:text-4xl font-black bg-gradient-to-r from-blue-400 to-orange-400 bg-clip-text text-transparent"
+          >
+            10K+
+          </div>
+          <p class="text-xs font-semibold uppercase tracking-wider text-slate-300">
+            Activités enregistrées
+          </p>
+        </div>
+
+        <div class="space-y-2">
+          <div
+            class="text-3xl lg:text-4xl font-black bg-gradient-to-r from-blue-400 to-orange-400 bg-clip-text text-transparent"
+          >
+            24/7
+          </div>
+          <p class="text-xs font-semibold uppercase tracking-wider text-slate-300">
+            Surveillance continue
+          </p>
+        </div>
+
+        <div class="space-y-2">
+          <div
+            class="text-3xl lg:text-4xl font-black bg-gradient-to-r from-blue-400 to-orange-400 bg-clip-text text-transparent"
+          >
+            100%
+          </div>
+          <p class="text-xs font-semibold uppercase tracking-wider text-slate-300">
+            Contrôle et traçabilité
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== CONTACT SECTION ==================== -->
+  <section id="contact" class="scroll-mt-20 py-20 lg:py-28 bg-slate-50">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center max-w-2xl mx-auto mb-12">
+        <div
+          class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-orange-50 text-orange-600 font-bold text-xs uppercase tracking-wider border border-orange-100 mb-5"
+        >
+          <i class="fas fa-paper-plane"></i>
+          Contactez-nous
+        </div>
+        <h2 class="text-3xl lg:text-4xl font-black text-slate-900 mb-4">
+          Besoin d’une solution pour
+          <span class="bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">
+            sécuriser vos sites ?</span
+          >
+        </h2>
+        <p class="text-base text-slate-600">
+          Notre équipe vous accompagne pour une démonstration personnalisée et une mise en place
+          rapide de la plateforme.
+        </p>
+      </div>
+
+      <div class="grid lg:grid-cols-2 gap-8 max-w-5xl mx-auto">
+        <!-- Formulaire -->
+        <div class="bg-white p-6 lg:p-8 rounded-2xl shadow-xl border border-slate-100">
+          <form (ngSubmit)="onSubmit()" #contactForm="ngForm" class="space-y-5">
+            <div class="grid sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-bold text-slate-700 mb-2"
+                  >Nom complet <span class="text-red-500">*</span></label
+                >
+                <input
+                  type="text"
+                  name="nom"
+                  [(ngModel)]="formData.nom"
+                  required
+                  #nomInput="ngModel"
+                  placeholder="Karifa Camara"
+                  class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+                  [class.border-red-300]="nomInput.invalid && nomInput.touched"
+                />
+                @if (nomInput.invalid && nomInput.touched) {
+                  <p class="text-xs text-red-500 mt-1">Ce champ est requis</p>
+                }
+              </div>
+              <div>
+                <label class="block text-sm font-bold text-slate-700 mb-2"
+                  >Email <span class="text-red-500">*</span></label
+                >
+                <input
+                  type="email"
+                  name="email"
+                  [(ngModel)]="formData.email"
+                  required
+                  email
+                  #emailInput="ngModel"
+                  placeholder="contact@exemple.com"
+                  class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+                  [class.border-red-300]="emailInput.invalid && emailInput.touched"
+                />
+                @if (emailInput.invalid && emailInput.touched) {
+                  <p class="text-xs text-red-500 mt-1">Email valide requis</p>
+                }
+              </div>
+            </div>
+            <div>
+              <label class="block text-sm font-bold text-slate-700 mb-2">Téléphone</label>
+              <input
+                type="tel"
+                name="telephone"
+                [(ngModel)]="formData.telephone"
+                placeholder="+224 6XX XX XX XX"
+                class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+              />
+            </div>
+            <div>
+              <label class="block text-sm font-bold text-slate-700 mb-2"
+                >Message <span class="text-red-500">*</span></label
+              >
+              <textarea
+                name="message"
+                [(ngModel)]="formData.message"
+                required
+                #messageInput="ngModel"
+                rows="4"
+                placeholder="Décrivez votre besoin..."
+                class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition resize-none"
+                [class.border-red-300]="messageInput.invalid && messageInput.touched"
+              ></textarea>
+              @if (messageInput.invalid && messageInput.touched) {
+                <p class="text-xs text-red-500 mt-1">Ce champ est requis</p>
+              }
+            </div>
+            <button
+              type="submit"
+              [disabled]="!contactForm.valid"
+              class="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 rounded-xl hover:shadow-xl hover:shadow-blue-500/25 transition-all duration-200 font-bold flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <span>Envoyer le message</span>
+              <i class="fas fa-arrow-right"></i>
+            </button>
+          </form>
+        </div>
+
+        <!-- Info + Map -->
+        <div class="space-y-5">
+          <div class="bg-white rounded-2xl border border-slate-100 p-6 lg:p-8 shadow-xl">
+            <div class="space-y-5">
+              <div class="flex items-center gap-4">
+                <div
+                  class="w-11 h-11 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-md"
+                >
+                  <i class="fas fa-map-marker-alt text-white"></i>
+                </div>
+                <div>
+                  <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Adresse</p>
+                  <p class="text-sm lg:text-base font-bold text-slate-800">
+                    Matam, Conakry, Guinée
+                  </p>
+                </div>
+              </div>
+              <div class="w-full h-px bg-slate-100"></div>
+              <div class="flex items-center gap-4">
+                <div
+                  class="w-11 h-11 rounded-xl bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center shadow-md"
+                >
+                  <i class="fas fa-phone text-white"></i>
+                </div>
+                <div>
+                  <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Téléphone</p>
+                  <p class="text-sm lg:text-base font-bold text-slate-800">+224 621 33 77 01</p>
+                </div>
+              </div>
+              <div class="w-full h-px bg-slate-100"></div>
+              <div class="flex items-center gap-4">
+                <div
+                  class="w-11 h-11 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-md"
+                >
+                  <i class="fas fa-clock text-white"></i>
+                </div>
+                <div>
+                  <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                    Disponibilité
+                  </p>
+                  <p class="text-sm lg:text-base font-bold text-slate-800">24h/24 — 7j/7</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Map -->
+          <div class="rounded-2xl overflow-hidden border border-slate-100 shadow-xl h-56">
+            <iframe
+              title="Carte de localisation VIGILO"
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15885.531234726555!2d-13.60514368321871!3d9.64123654252678!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xf33c9b1f1e9a1a1%3A0x8a0c6b6c8f5a8b6!2sMatam%2C%20Conakry%2C%20Guin%C3%A9e!5e0!3m2!1sfr!2sgn!4v1713300000000!5m2!1sfr!2sgn"
+              class="w-full h-full border-0"
+              allowfullscreen
+              loading="lazy"
+            ></iframe>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== FOOTER ==================== -->
+  <footer class="bg-slate-900 text-white pt-12 pb-6">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 lg:grid-cols-5 gap-8 mb-10">
+        <div class="lg:col-span-2">
+          <div
+            class="flex items-center gap-2 mb-5 cursor-pointer"
+            (click)="scrollTo('Accueil', '#hero')"
+          >
+            <div
+              class="w-9 h-9 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg"
+            >
+              <i class="fas fa-shield-alt text-white text-sm"></i>
+            </div>
+            <span class="text-xl font-black tracking-tight text-white">VIGILO</span>
+          </div>
+          <p class="text-slate-400 text-sm leading-relaxed mb-5">
+            Plateforme SaaS de gestion de sécurité et de gardiennage. Centralisez vos agents, suivez
+            les rondes en temps réel et générez des rapports fiables pour une supervision complète.
+          </p>
+          <div class="flex gap-3">
+            <a
+              href="#"
+              class="w-9 h-9 rounded-full bg-slate-800 flex items-center justify-center hover:bg-blue-600 transition-colors"
+            >
+              <i class="fab fa-facebook-f text-xs"></i>
+            </a>
+            <a
+              href="#"
+              class="w-9 h-9 rounded-full bg-slate-800 flex items-center justify-center hover:bg-blue-600 transition-colors"
+            >
+              <i class="fab fa-linkedin-in text-xs"></i>
+            </a>
+            <a
+              href="#"
+              class="w-9 h-9 rounded-full bg-slate-800 flex items-center justify-center hover:bg-blue-600 transition-colors"
+            >
+              <i class="fab fa-twitter text-xs"></i>
+            </a>
+          </div>
+        </div>
+        <div>
+          <h4 class="font-bold text-white mb-4 text-base">Navigation</h4>
+          <ul class="space-y-2 text-sm">
+            @for (item of menuItems; track item.label) {
+              <li>
+                <a
+                  (click)="scrollTo(item.label, item.link)"
+                  class="text-slate-400 hover:text-white transition-colors cursor-pointer"
+                >
+                  {{ item.label }}
+                </a>
+              </li>
+            }
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-white mb-4 text-base">Légal</h4>
+          <ul class="space-y-2 text-sm text-slate-400">
+            <li><a href="#" class="hover:text-white transition-colors">Mentions légales</a></li>
+            <li><a href="#" class="hover:text-white transition-colors">Confidentialité</a></li>
+            <li><a href="#" class="hover:text-white transition-colors">CGV</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-white mb-4 text-base">Newsletter</h4>
+          <p class="text-sm text-slate-400 mb-3">Restez informé des mises à jour</p>
+          <div class="flex">
+            <input
+              type="email"
+              placeholder="votre@email.com"
+              class="flex-1 px-3 py-2 bg-slate-800 text-white rounded-l-xl border border-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+            />
+            <button
+              class="bg-gradient-to-r from-blue-600 to-blue-700 px-4 rounded-r-xl hover:shadow-lg transition-all"
+            >
+              <i class="fas fa-paper-plane text-sm"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="border-t border-slate-800 pt-6 text-center text-xs text-slate-500">
+        <p>© 2026 VIGILO. Développé pour la sécurité en Guinée 🇬🇳</p>
+      </div>
+    </div>
+  </footer>
+</div>

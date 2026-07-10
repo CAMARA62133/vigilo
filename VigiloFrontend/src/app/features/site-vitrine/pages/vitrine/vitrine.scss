@@ -1,0 +1,60 @@
+/* Animation pour le marqueur utilisateur */
+::ng-deep .user-marker {
+  background: transparent !important;
+  border: none !important;
+}
+
+/* Style des popups Leaflet pour accommoder le bouton d'itinéraire */
+::ng-deep .leaflet-popup-content-wrapper {
+  border-radius: 8px;
+  padding: 0;
+}
+
+::ng-deep .leaflet-popup-content {
+  margin: 12px;
+}
+
+// Styles supplémentaires pour les cartes d'offres
+:host {
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2; /* fallback WebKit */
+    line-clamp: 2;         /* propriété standard */
+    overflow: hidden;
+  }
+
+  
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3; /* fallback WebKit */
+  line-clamp: 3;         /* propriété standard */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+  
+  // Animation au hover des cartes
+  .group {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  // Effet de brillance sur le bouton
+  button {
+    position: relative;
+    overflow: hidden;
+  }
+}
+
+// Animation pulse pour le badge urgent
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}

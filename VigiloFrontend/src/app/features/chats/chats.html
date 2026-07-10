@@ -1,0 +1,450 @@
+<!-- chats.html -->
+<div class="p-6 h-[calc(100vh-5rem)] flex flex-col dark:bg-slate-900">
+  <!-- HEADER -->
+  <div class="flex items-center justify-between mb-6">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white shadow-md">
+        <i class="fa-solid fa-message"></i>
+      </div>
+      <div>
+        <h1 class="text-2xl font-bold text-slate-800 dark:text-white tracking-tight">Messagerie</h1>
+        <p class="text-slate-500 dark:text-slate-400 text-sm font-medium">Communication sécurisée</p>
+      </div>
+    </div>
+
+    <div class="flex gap-4">
+      <div class="bg-slate-100 dark:bg-slate-800 rounded-lg px-3 py-1.5">
+        <span class="text-xs text-slate-600 dark:text-slate-400">Non lus</span>
+        <span class="ml-2 font-bold text-blue-600 dark:text-blue-400">{{ totalUnreadCount() }}</span>
+      </div>
+      <div class="bg-blue-50 dark:bg-blue-900/30 rounded-lg px-3 py-1.5">
+        <span class="text-xs text-blue-600 dark:text-blue-400">Urgents</span>
+        <span class="ml-2 font-bold text-blue-600 dark:text-blue-400">{{ urgentConversations().length }}</span>
+      </div>
+      <button (click)="showNewMessageModal.set(true)"
+              class="px-4 py-1.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg text-sm hover:from-blue-600 hover:to-blue-700 transition-all shadow-md shadow-blue-500/30 flex items-center gap-2">
+        <i class="fa-solid fa-plus"></i>
+        <span>Nouveau message</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- GRILLE PRINCIPALE -->
+  <div class="flex-1 grid grid-cols-1 lg:grid-cols-3 gap-5 min-h-0">
+    <!-- LISTE DES CONVERSATIONS -->
+    <div class="lg:col-span-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl overflow-hidden shadow-sm flex flex-col">
+      <div class="p-3 border-b border-slate-200 dark:border-slate-700">
+        <div class="relative">
+          <i class="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 text-sm"></i>
+          <input type="text"
+                 [ngModel]="searchQuery()"
+                 (ngModelChange)="searchQuery.set($event)"
+                 placeholder="Rechercher une conversation..."
+                 class="w-full pl-10 pr-4 py-2 rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 dark:text-white focus:border-blue-400 focus:ring-1 focus:ring-blue-400/20 outline-none transition-all text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500">
+        </div>
+      </div>
+
+      <div class="flex-1 overflow-y-auto p-2">
+        @if (isLoading()) {
+          <div class="flex items-center justify-center h-32">
+            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+          </div>
+        } @else if (filteredConversations().length === 0) {
+          <div class="text-center py-12">
+            <i class="fa-solid fa-inbox text-4xl text-slate-300 dark:text-slate-600 mb-3"></i>
+            <p class="text-slate-500 dark:text-slate-400 text-sm">Aucune conversation</p>
+          </div>
+        } @else {
+          <!-- @for (conv of filteredConversations(); track conv) {
+            <div class="flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all duration-200 hover:bg-slate-50 dark:hover:bg-slate-700/50"
+                 [class.bg-blue-50]="selectedConversation()?.id === conv.id"
+                 (click)="selectConversation(conv)">
+              <div class="relative flex-shrink-0">
+                <div class="w-12 h-12 rounded-xl bg-gradient-to-br flex items-center justify-center text-white font-bold text-base shadow-sm"
+                     [class]="getAvatarColor(conv.name || '')">
+                  {{ getInitial(conv.name || 'C') }}
+                </div>
+                @if (conv.type === 'URGENCE') {
+                  <div class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center border-2 border-white dark:border-slate-800">
+                    <i class="fa-solid fa-triangle-exclamation text-[8px] text-white"></i>
+                  </div>
+                }
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center justify-between">
+                  <h3 class="text-sm font-semibold text-slate-800 dark:text-white truncate">{{ conv.name }}</h3>
+                  <span class="text-[10px] text-slate-400 dark:text-slate-500">{{ conv.lastMessageTime | date:'HH:mm' }}</span>
+                </div>
+                <div class="flex items-center justify-between mt-0.5">
+                  <p class="text-xs text-slate-500 dark:text-slate-400 truncate">{{ conv.lastMessage || 'Aucun message' }}</p>
+                  @if (conv.unreadCount && conv.unreadCount > 0) {
+                    <span class="ml-2 w-5 h-5 bg-blue-500 text-white rounded-full text-[10px] flex items-center justify-center flex-shrink-0">
+                      {{ conv.unreadCount }}
+                    </span>
+                  }
+                </div>
+              </div>
+            </div>
+          } -->
+        }
+      </div>
+    </div>
+
+    <!-- ZONE DE CHAT -->
+    <div class="lg:col-span-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl overflow-hidden shadow-sm flex flex-col">
+      @if (selectedConversation(); as conv) {
+        <div class="p-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/50 flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-br flex items-center justify-center text-white font-bold text-base shadow-sm"
+                 [class]="getAvatarColor(conv.name || '')">
+              {{ getInitial(conv.name || 'C') }}
+            </div>
+            <div>
+              <h2 class="font-semibold text-slate-800 dark:text-white">{{ conv.name }}</h2>
+              <p class="text-xs text-slate-500 dark:text-slate-400">
+                @if (conv.type === 'GROUPE') {
+                  {{ conv.participants.length || 0 }} participants
+                } @else if (conv.type === 'URGENCE') {
+                  <span class="text-red-600 dark:text-red-400 font-medium">⚠️ CANAL URGENCE</span>
+                } @else {
+                  {{ conv.participants.length === 1 ? 'En ligne' : (conv.participants.length || 0) + ' participants' }}
+                }
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex-1 overflow-y-auto p-4 space-y-4 messages-container dark:bg-slate-900/30">
+          @if (isLoadingMessages()) {
+            <div class="flex items-center justify-center h-32">
+              <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+            </div>
+          } @else {
+            @for (group of groupMessagesByDate(currentMessages()); track group.date) {
+              <div class="relative">
+                <div class="absolute inset-x-0 top-1/2 h-px bg-slate-200 dark:bg-slate-700"></div>
+                <div class="relative flex justify-center">
+                  <span class="bg-white dark:bg-slate-800 px-3 py-1 text-xs text-slate-500 dark:text-slate-400 rounded-full border border-slate-200 dark:border-slate-700">
+                    {{ formatDateHeader(group.date) }}
+                  </span>
+                </div>
+              </div>
+              
+              @for (msg of group.messages; track msg.id) {
+                <div class="flex" [class.justify-end]="isCurrentUser(msg.senderId)">
+                  <div class="max-w-[70%]" [class.order-1]="isCurrentUser(msg.senderId)">
+                    @if (!isCurrentUser(msg.senderId)) {
+                      <div class="flex items-center gap-2 mb-1">
+                        <span class="text-xs font-medium text-slate-700 dark:text-slate-300">{{ msg.sender?.fullname }}</span>
+                      </div>
+                    }
+
+                    @if (msg.type === 'TEXTE' || msg.type === 'URGENCE') {
+                      <div [class]="msg.isUrgent
+                        ? 'bg-red-50 dark:bg-red-900/30 border-red-200 dark:border-red-800 text-red-800 dark:text-red-200'
+                        : isCurrentUser(msg.senderId)
+                          ? 'bg-blue-500 text-white'
+                          : 'bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-white'"
+                           class="rounded-2xl px-4 py-2 text-sm relative group">
+                        <p class="whitespace-pre-wrap break-words">{{ msg.content }}</p>
+
+                        @if (isCurrentUser(msg.senderId)) {
+                          <div class="absolute -bottom-4 right-0 text-[8px] text-slate-400 dark:text-slate-500 flex items-center gap-0.5">
+                            <i class="fa-solid" [class]="getMessageStatusIcon(msg.status)"></i>
+                            <span>{{ formatMessageTime(msg.timestamp) }}</span>
+                          </div>
+                        } @else {
+                          <div class="absolute -bottom-4 left-0 text-[8px] text-slate-400 dark:text-slate-500">
+                            {{ formatMessageTime(msg.timestamp) }}
+                          </div>
+                        }
+                      </div>
+                    }
+
+                    @if (msg.type === 'GEOLOCALISATION' && msg.geolocation) {
+                      <div class="bg-slate-100 dark:bg-slate-700 rounded-2xl overflow-hidden w-64 cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
+                          (click)="openLocation(msg.geolocation!.lat, msg.geolocation!.lng)">
+                        <div class="h-32 bg-gradient-to-br from-blue-400 to-blue-600 dark:from-blue-600 dark:to-blue-800 relative">
+                          <div class="absolute inset-0 flex items-center justify-center">
+                            <i class="fa-solid fa-location-dot text-4xl text-white drop-shadow-lg"></i>
+                          </div>
+                          <div class="absolute bottom-2 left-2 right-2 bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm rounded-lg p-2 text-xs shadow-lg">
+                            <p class="font-medium text-slate-800 dark:text-white">{{ msg.geolocation.address || 'Position partagée' }}</p>
+                            <p class="text-slate-500 dark:text-slate-400 text-[10px] font-mono">{{ msg.geolocation.lat.toFixed(6) }}, {{ msg.geolocation.lng.toFixed(6) }}</p>
+                          </div>
+                        </div>
+                        @if (!isCurrentUser(msg.senderId)) {
+                          <div class="px-3 py-1 text-[8px] text-slate-400 dark:text-slate-500">
+                            {{ formatMessageTime(msg.timestamp) }}
+                          </div>
+                        }
+                      </div>
+                    }
+
+                    @if (msg.type === 'IMAGE' && msg.attachments && msg.attachments.length > 0) {
+                      <div class="cursor-pointer group relative" (click)="previewFile(msg)">
+                        <img [src]="msg.attachments[0].thumbnailUrl || msg.attachments[0].url"
+                             class="max-w-full max-h-96 rounded-2xl border-2 border-slate-200 dark:border-slate-700 hover:border-blue-400 transition-all">
+                        @if (!isCurrentUser(msg.senderId)) {
+                          <div class="text-[8px] text-slate-400 dark:text-slate-500 mt-1">
+                            {{ formatMessageTime(msg.timestamp) }}
+                          </div>
+                        }
+                      </div>
+                    }
+
+                    @if (msg.type === 'FICHIER' && msg.attachments && msg.attachments.length > 0) {
+                      <div class="bg-slate-100 dark:bg-slate-700 rounded-2xl p-3 w-72 cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
+                           (click)="previewFile(msg)">
+                        <div class="flex items-center gap-3">
+                          <i class="fa-solid text-3xl text-slate-600 dark:text-slate-400" [class]="getFileIcon(msg.attachments[0].type)"></i>
+                          <div class="flex-1 min-w-0">
+                            <p class="text-sm font-medium text-slate-800 dark:text-white truncate">{{ msg.attachments[0].name }}</p>
+                            <p class="text-[10px] text-slate-500 dark:text-slate-400">{{ formatFileSize(msg.attachments[0].size) }}</p>
+                          </div>
+                        </div>
+                        @if (!isCurrentUser(msg.senderId)) {
+                          <div class="text-[8px] text-slate-400 dark:text-slate-500 mt-2">
+                            {{ formatMessageTime(msg.timestamp) }}
+                          </div>
+                        }
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
+            }
+          }
+        </div>
+
+        <div class="p-4 border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
+          <div class="flex items-center gap-2 mb-2">
+            <button class="p-2 text-slate-400 dark:text-slate-500 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
+                    (click)="fileInputImage.click()">
+              <i class="fa-solid fa-image"></i>
+            </button>
+            <input #fileInputImage type="file" accept="image/*" class="hidden" (change)="onFileSelected($event, 'IMAGE')">
+
+            <button class="p-2 text-slate-400 dark:text-slate-500 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
+                    (click)="fileInputFile.click()">
+              <i class="fa-solid fa-paperclip"></i>
+            </button>
+            <input #fileInputFile type="file" class="hidden" (change)="onFileSelected($event, 'FICHIER')">
+
+            <button class="p-2 text-slate-400 dark:text-slate-500 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
+                    (click)="showGeolocationModal.set(true)">
+              <i class="fa-solid fa-location-dot"></i>
+            </button>
+
+            @if (conv.type === 'URGENCE') {
+              <div class="ml-auto">
+                <span class="text-xs bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 px-2 py-1 rounded-full">
+                  <i class="fa-solid fa-triangle-exclamation mr-1"></i>
+                  Canal prioritaire
+                </span>
+              </div>
+            }
+          </div>
+
+          <form [formGroup]="messageForm" (ngSubmit)="sendMessage()" class="flex gap-2">
+            <input type="text"
+                   formControlName="content"
+                   [placeholder]="conv.type === 'URGENCE' ? 'Message urgent...' : 'Écrivez votre message...'"
+                   class="flex-1 px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 dark:text-white focus:border-blue-400 focus:ring-1 focus:ring-blue-400/20 outline-none transition-all text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500">
+            <button type="submit"
+                    [class]="conv.type === 'URGENCE' 
+                      ? 'px-5 py-2.5 rounded-xl bg-red-500 hover:bg-red-600 text-white transition-all shadow-md flex items-center gap-2'
+                      : 'px-5 py-2.5 rounded-xl bg-blue-500 hover:bg-blue-600 text-white transition-all shadow-md flex items-center gap-2'"
+                    [disabled]="messageForm.invalid">
+              <i class="fa-solid fa-paper-plane"></i>
+              <span class="hidden sm:inline">Envoyer</span>
+            </button>
+          </form>
+        </div>
+      } @else {
+        <div class="h-full flex items-center justify-center">
+          <div class="text-center">
+            <div class="w-20 h-20 mx-auto bg-slate-100 dark:bg-slate-700 rounded-full flex items-center justify-center mb-4">
+              <i class="fa-solid fa-message text-3xl text-slate-400 dark:text-slate-500"></i>
+            </div>
+            <h3 class="text-lg font-semibold text-slate-700 dark:text-slate-300">Aucune conversation sélectionnée</h3>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Choisissez une conversation pour commencer à discuter</p>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- MODAL NOUVELLE CONVERSATION -->
+  @if (showNewMessageModal()) {
+    <div class="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-center justify-center z-50 p-4 backdrop-blur-sm" (click)="showNewMessageModal.set(false)">
+      <div class="bg-white dark:bg-slate-900 rounded-2xl w-full max-w-md shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden" (click)="$event.stopPropagation()">
+        <div class="p-5 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
+          <h2 class="text-lg font-bold text-slate-800 dark:text-white">Nouvelle conversation</h2>
+          <button (click)="showNewMessageModal.set(false)" class="text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300">
+            <i class="fa-solid fa-times"></i>
+          </button>
+        </div>
+
+        <form [formGroup]="conversationForm" (ngSubmit)="createConversation()">
+          <div class="p-5 space-y-4">
+            <div>
+              <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">Type de conversation</label>
+              <select formControlName="type" class="w-full px-3 py-2 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 dark:text-white focus:border-blue-400 focus:ring-1 focus:ring-blue-400/20 outline-none">
+                <option value="INDIVIDUEL">Conversation individuelle</option>
+                <option value="GROUPE">Groupe</option>
+                <option value="URGENCE">Urgence / SOS</option>
+              </select>
+            </div>
+
+            @if (conversationForm.get('type')?.value !== 'INDIVIDUEL') {
+              <div>
+                <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">Contexte</label>
+                <select formControlName="scope" class="w-full px-3 py-2 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 dark:text-white focus:border-blue-400 focus:ring-1 focus:ring-blue-400/20 outline-none">
+                  <option value="SITE">Groupe du site</option>
+                  <option value="COMPANY">Groupe de l'entreprise</option>
+                  <option value="CUSTOM">Groupe personnalisé</option>
+                </select>
+              </div>
+            }
+
+            @if (conversationForm.get('type')?.value === 'INDIVIDUEL' || conversationForm.get('scope')?.value === 'CUSTOM') {
+              <div>
+                <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">Participants</label>
+                
+                @if (searchForm.get('query')?.value) {
+                  <div class="mt-2 space-y-1 max-h-40 overflow-y-auto border border-slate-200 dark:border-slate-700 rounded-lg p-1 dark:bg-slate-800">
+                    @for (user of filteredUsers(); track user.id) {
+                      <div class="flex items-center justify-between p-2 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg cursor-pointer transition-colors" (click)="addParticipant(user.id)">
+                        <div>
+                          <p class="text-sm font-medium text-slate-800 dark:text-white">{{ user.fullname }}</p>
+                          <p class="text-xs text-slate-500 dark:text-slate-400">{{ user.email }}</p>
+                        </div>
+                        @if (conversationForm.get('participants')?.value?.includes(user.id)) {
+                          <i class="fa-solid fa-check-circle text-blue-500"></i>
+                        } @else {
+                          <i class="fa-solid fa-plus-circle text-slate-300 dark:text-slate-600"></i>
+                        }
+                      </div>
+                    }
+                  </div>
+                }
+
+                @if ((conversationForm.get('participants')?.value || []).length > 0) {
+                  <div class="mt-3 flex flex-wrap gap-2">
+                    @for (participantId of conversationForm.get('participants')?.value || []; track participantId) {
+                      <span class="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full text-xs">
+                        {{ getParticipantName(participantId) }}
+                        <button type="button" (click)="removeParticipant(participantId)" class="hover:text-blue-900 dark:hover:text-blue-200">
+                          <i class="fa-solid fa-times-circle"></i>
+                        </button>
+                      </span>
+                    }
+                  </div>
+                }
+              </div>
+            }
+
+            <div>
+              <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">Message initial (optionnel)</label>
+              <textarea formControlName="message" rows="3" placeholder="Écrire un message..." class="w-full px-3 py-2 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 dark:text-white focus:border-blue-400 focus:ring-1 focus:ring-blue-400/20 outline-none resize-none placeholder:text-slate-400 dark:placeholder:text-slate-500"></textarea>
+            </div>
+          </div>
+
+          <div class="p-4 border-t border-slate-200 dark:border-slate-700 flex gap-2">
+            <button type="submit" class="flex-1 py-2 bg-blue-500 text-white rounded-lg text-sm hover:bg-blue-600 transition font-medium">Créer</button>
+            <button type="button" (click)="showNewMessageModal.set(false)" class="flex-1 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 dark:text-white rounded-lg text-sm hover:bg-slate-50 dark:hover:bg-slate-700 transition">Annuler</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+
+  <!-- MODAL GÉOLOCALISATION -->
+  @if (showGeolocationModal()) {
+    <div class="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-center justify-center z-50 p-4 backdrop-blur-sm" (click)="showGeolocationModal.set(false)">
+      <div class="bg-white dark:bg-slate-900 rounded-2xl w-full max-w-md shadow-2xl border border-slate-200 dark:border-slate-700" (click)="$event.stopPropagation()">
+        <div class="p-5 border-b border-slate-200 dark:border-slate-700">
+          <h2 class="text-lg font-bold text-slate-800 dark:text-white">Partager ma position</h2>
+        </div>
+        <div class="p-5">
+          <div class="bg-gradient-to-br from-blue-400 to-blue-600 dark:from-blue-600 dark:to-blue-800 rounded-xl h-48 mb-4 relative overflow-hidden">
+            <div class="absolute inset-0 flex items-center justify-center">
+              <i class="fa-solid fa-location-dot text-5xl text-white drop-shadow-lg"></i>
+            </div>
+          </div>
+          <div class="flex gap-2">
+            <button (click)="getCurrentLocation()" class="flex-1 py-2 bg-blue-500 text-white rounded-lg text-sm hover:bg-blue-600 transition">Partager ma position</button>
+            <button (click)="showGeolocationModal.set(false)" class="flex-1 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 dark:text-white rounded-lg text-sm hover:bg-slate-50 dark:hover:bg-slate-700 transition">Annuler</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- MODAL APERÇU FICHIER -->
+  @if (showFilePreviewModal() && selectedFile()) {
+    <div class="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-center justify-center z-50 p-4 backdrop-blur-sm" (click)="showFilePreviewModal.set(false)">
+      <div class="bg-white dark:bg-slate-900 rounded-2xl w-full max-w-2xl shadow-2xl border border-slate-200 dark:border-slate-700" (click)="$event.stopPropagation()">
+        <div class="p-5 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
+          <h2 class="text-lg font-bold text-slate-800 dark:text-white truncate">{{ selectedFile()?.name }}</h2>
+          <button (click)="showFilePreviewModal.set(false)" class="text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300">
+            <i class="fa-solid fa-times"></i>
+          </button>
+        </div>
+        <div class="p-5">
+          @if (selectedFile()?.type?.startsWith('image/')) {
+            <img [src]="selectedFile()?.url" class="max-w-full max-h-96 mx-auto rounded-lg">
+          } @else {
+            <div class="text-center py-12">
+              <i class="fa-solid text-6xl text-slate-400 dark:text-slate-600" [class]="getFileIcon(selectedFile()?.type || '')"></i>
+              <p class="mt-4 text-sm text-slate-600 dark:text-slate-400">Taille: {{ formatFileSize(selectedFile()?.size || 0) }}</p>
+              <button class="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg text-sm hover:bg-blue-600 transition">
+                <i class="fa-solid fa-download mr-2"></i>Télécharger
+              </button>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  }
+</div>
+
+<style>
+.messages-container {
+  scroll-behavior: smooth;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.messages-container > div {
+  animation: slideIn 0.3s ease-out;
+}
+
+.messages-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.messages-container::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.messages-container::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+
+.messages-container::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+</style>

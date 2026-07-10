@@ -1,0 +1,557 @@
+<div class="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100">
+  <div class="container mx-auto px-4 sm:px-6 py-6 sm:py-10 max-w-6xl">
+    <!-- Header modernisé -->
+    <div class="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div
+          class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white"
+        >
+          <i class="fa-solid fa-user-astronaut text-lg"></i>
+        </div>
+        <div>
+          <h1
+            class="text-2xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent tracking-tight"
+          >
+            Mon profil
+          </h1>
+          <p class="text-sm text-slate-500">
+            Gérez vos informations personnelles et la sécurité de votre compte
+          </p>
+        </div>
+      </div>
+      <div class="hidden sm:flex items-center gap-2 text-sm text-slate-400">
+        <i class="fa-regular fa-circle-check text-blue-500"></i>
+        <span>Compte sécurisé</span>
+      </div>
+    </div>
+
+    <!-- LOADING -->
+    @if (isLoading()) {
+      <div class="flex flex-col items-center justify-center py-20">
+        <div class="relative">
+          <div
+            class="w-12 h-12 border-3 border-blue-100 border-t-blue-600 rounded-full animate-spin"
+          ></div>
+          <div class="absolute inset-0 flex items-center justify-center">
+            <div
+              class="w-5 h-5 bg-gradient-to-tr from-blue-500 to-blue-600 rounded-full animate-pulse"
+            ></div>
+          </div>
+        </div>
+        <p class="mt-5 text-sm font-medium text-slate-500">
+          Chargement de votre profil...
+        </p>
+      </div>
+    } @else {
+      <!-- Carte principale -->
+      <div
+        class="bg-white rounded-2xl overflow-hidden transition-all duration-300 border border-slate-200"
+      >
+        <!-- Header profil - version compacte -->
+        <div class="relative bg-gradient-to-r from-blue-600 to-indigo-700 px-4 sm:px-6 pt-6 pb-10">
+          <!-- Pattern décoratif léger -->
+          <div
+            class="absolute inset-0 opacity-[0.05]"
+            style="
+              background-image: radial-gradient(circle at 1px 1px, white 1px, transparent 1px);
+              background-size: 24px 24px;
+            "
+          ></div>
+
+          <!-- Avatar -->
+          <div class="relative flex justify-center">
+            <div class="relative">
+              <div
+                class="relative w-20 h-20 rounded-full overflow-hidden border-3 border-white bg-white flex items-center justify-center"
+              >
+                @if (user()?.photoProfile) {
+                  <img
+                    [src]="getMediaUrl(user()?.photoProfile, 'photos')"
+                    class="w-full h-full object-cover"
+                  />
+                } @else if (user()?.company?.logo) {
+                  <img
+                    [src]="getMediaUrl(user()?.company?.logo, 'logos')"
+                    class="w-full h-full object-cover p-1.5"
+                  />
+                } @else {
+                  <i class="fa-solid text-3xl text-slate-400" [class]="roleIcon()"></i>
+                }
+              </div>
+            </div>
+          </div>
+
+          <!-- Informations utilisateur -->
+          <div class="text-center mt-2">
+            <h2 class="text-xl font-bold text-white mb-1 tracking-tight">
+              {{ user()?.fullname }}
+            </h2>
+            <div class="flex justify-center gap-2">
+              <span
+                class="px-2.5 py-0.5 text-[11px] rounded-full bg-white/20 text-white font-medium border border-white/30"
+              >
+                <i class="fa-solid mr-1 text-[9px]" [class]="roleIcon()"></i>
+                {{ roleLabel() }}
+              </span>
+              <span
+                class="px-2.5 py-0.5 text-[11px] rounded-full font-medium border"
+                [class]="statusColor()"
+              >
+                <i class="fa-solid mr-1 text-[9px]" [class]="statusIcon()"></i>
+                {{ statusLabel() }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="px-4 sm:px-6 border-b border-slate-200 bg-white">
+          <div class="flex gap-1 overflow-x-auto scrollbar-hide">
+            <button
+              class="px-4 py-2.5 text-sm font-semibold transition-all duration-200 rounded-t-lg whitespace-nowrap"
+              [class]="
+                activeTab() === 'info'
+                  ? 'bg-white text-blue-600 border-b-2 border-blue-600 -mb-[1px]'
+                  : 'text-slate-500 hover:text-blue-600'
+              "
+              (click)="activeTab.set('info')"
+            >
+              <i class="fa-regular fa-id-card mr-2"></i> Informations
+            </button>
+            <button
+              class="px-4 py-2.5 text-sm font-semibold transition-all duration-200 rounded-t-lg whitespace-nowrap"
+              [class]="
+                activeTab() === 'edit'
+                  ? 'bg-white text-blue-600 border-b-2 border-blue-600 -mb-[1px]'
+                  : 'text-slate-500 hover:text-blue-600'
+              "
+              (click)="loadProfileData(); activeTab.set('edit')"
+            >
+              <i class="fa-regular fa-pen-to-square mr-2"></i> Modifier
+            </button>
+            <button
+              class="px-4 py-2.5 text-sm font-semibold transition-all duration-200 rounded-t-lg whitespace-nowrap"
+              [class]="
+                activeTab() === 'password'
+                  ? 'bg-white text-blue-600 border-b-2 border-blue-600 -mb-[1px]'
+                  : 'text-slate-500 hover:text-blue-600'
+              "
+              (click)="activeTab.set('password')"
+            >
+              <i class="fa-solid fa-shield-haltered mr-2"></i> Sécurité
+            </button>
+          </div>
+        </div>
+
+        <!-- CONTENT -->
+        <div class="p-5 sm:p-7 transition-all duration-300 animate-fadeIn">
+          <!-- TAB INFO -->
+          @if (activeTab() === 'info') {
+            <div class="max-w-3xl mx-auto">
+              <!-- Section contact -->
+              <div class="mb-7">
+                <div class="flex items-center gap-2 mb-4">
+                  <div
+                    class="w-5 h-5 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center"
+                  >
+                    <i class="fa-regular fa-address-card text-[10px]"></i>
+                  </div>
+                  <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                    Informations de contact
+                  </h3>
+                </div>
+                <div class="grid sm:grid-cols-2 gap-4">
+                  <div
+                    class="p-4 bg-slate-50 rounded-xl border border-slate-200"
+                  >
+                    <div class="flex items-start gap-3">
+                      <div
+                        class="w-8 h-8 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center"
+                      >
+                        <i class="fa-regular fa-envelope text-sm"></i>
+                      </div>
+                      <div class="flex-1">
+                        <div class="text-xs text-slate-400 font-semibold mb-0.5">EMAIL</div>
+                        <div class="font-medium text-slate-700 break-all text-sm">
+                          {{ user()?.email || 'Non renseigné' }}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  @if (user()?.phone) {
+                    <div
+                      class="p-4 bg-slate-50 rounded-xl border border-slate-200"
+                    >
+                      <div class="flex items-start gap-3">
+                        <div
+                          class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center"
+                        >
+                          <i class="fa-solid fa-phone text-sm"></i>
+                        </div>
+                        <div class="flex-1">
+                          <div class="text-xs text-slate-400 font-semibold mb-0.5">TÉLÉPHONE</div>
+                          <div class="font-medium text-slate-700 text-sm">{{ user()?.phone }}</div>
+                        </div>
+                      </div>
+                    </div>
+                  }
+
+                  @if (user()?.address) {
+                    <div
+                      class="p-4 bg-slate-50 rounded-xl border border-slate-200 sm:col-span-2"
+                    >
+                      <div class="flex items-start gap-3">
+                        <div
+                          class="w-8 h-8 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center"
+                        >
+                          <i class="fa-regular fa-location-dot text-sm"></i>
+                        </div>
+                        <div class="flex-1">
+                          <div class="text-xs text-slate-400 font-semibold mb-0.5">ADRESSE</div>
+                          <div class="font-medium text-slate-700 text-sm">{{ user()?.address }}</div>
+                        </div>
+                      </div>
+                    </div>
+                  }
+                </div>
+              </div>
+
+              <!-- Entreprise -->
+              @if (user()?.company) {
+                <div class="mb-7">
+                  <div class="flex items-center gap-2 mb-4">
+                    <div
+                      class="w-5 h-5 rounded-lg bg-orange-100 text-orange-600 flex items-center justify-center"
+                    >
+                      <i class="fa-regular fa-building text-[10px]"></i>
+                    </div>
+                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                      Entreprise
+                    </h3>
+                  </div>
+                  <div class="space-y-4">
+                    <div
+                      class="p-4 bg-orange-50/50 rounded-xl border border-orange-100"
+                    >
+                      <div class="flex items-start gap-3">
+                        <div
+                          class="w-8 h-8 rounded-lg bg-orange-100 text-orange-700 flex items-center justify-center"
+                        >
+                          <i class="fa-regular fa-building"></i>
+                        </div>
+                        <div class="flex-1">
+                          <div class="text-xs text-orange-600 font-semibold mb-0.5">NOM</div>
+                          <div class="font-bold text-slate-800">
+                            {{ user()?.company?.name }}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    @if (user()?.company?.email || user()?.company?.phone) {
+                      <div class="grid sm:grid-cols-2 gap-4">
+                        @if (user()?.company?.email) {
+                          <div class="p-3 bg-slate-50 rounded-lg border border-slate-200">
+                            <div class="text-xs text-slate-400 font-semibold mb-0.5">EMAIL PRO</div>
+                            <div class="font-medium text-sm text-slate-700 break-all">
+                              {{ user()?.company?.email }}
+                            </div>
+                          </div>
+                        }
+                        @if (user()?.company?.phone) {
+                          <div class="p-3 bg-slate-50 rounded-lg border border-slate-200">
+                            <div class="text-xs text-slate-400 font-semibold mb-0.5">TÉLÉPHONE PRO</div>
+                            <div class="font-medium text-sm text-slate-700">
+                              {{ user()?.company?.phone }}
+                            </div>
+                          </div>
+                        }
+                      </div>
+                    }
+
+                    @if (user()?.company?.address) {
+                      <div class="p-4 bg-slate-50 rounded-lg border border-slate-200">
+                        <div class="flex items-start gap-2">
+                          <i class="fa-regular fa-location-dot text-slate-400 text-sm mt-0.5"></i>
+                          <div>
+                            <div class="text-xs text-slate-400 font-semibold mb-0.5">ADRESSE</div>
+                            <div class="font-medium text-sm text-slate-700">
+                              {{ user()?.company?.address }}
+                            </div>
+                            @if ( user()?.company?.country) {
+                              <div class="text-xs text-slate-500 mt-1">
+                               
+                                {{
+                                  user()?.company?.country
+                                    ? '(' + user()?.company?.country + ')'
+                                    : ''
+                                }}
+                              </div>
+                            }
+                          </div>
+                        </div>
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
+
+              <!-- Métadonnées -->
+              <div class="mt-8 pt-5 border-t border-slate-200">
+                <div
+                  class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 text-xs text-slate-400"
+                >
+                  <div class="flex items-center gap-2 bg-slate-50 px-3 py-1.5 rounded-full">
+                    <i class="fa-regular fa-calendar-alt text-blue-500 text-xs"></i>
+                    <span>Compte créé le {{ (user()?.createdAt | date: 'dd/MM/yyyy') || '—' }}</span>
+                  </div>
+                  <div class="flex items-center gap-2 bg-slate-50 px-3 py-1.5 rounded-full">
+                    <i class="fa-regular fa-clock text-blue-500 text-xs"></i>
+                    <span>Mise à jour {{ (user()?.updatedAt | date: 'dd/MM/yyyy') || '—' }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          }
+
+          <!-- TAB EDIT -->
+          @if (activeTab() === 'edit') {
+            <div class="max-w-xl mx-auto">
+              <form [formGroup]="profileForm" (ngSubmit)="updateProfile()" class="space-y-5">
+                <!-- Upload photo -->
+                <div class="flex justify-center mb-6 pb-3 border-b border-slate-100">
+                  <div class="relative group">
+                    <div
+                      class="w-24 h-24 rounded-full bg-gradient-to-br from-slate-100 to-slate-200 border-3 border-white flex items-center justify-center overflow-hidden"
+                    >
+                      @if (photoPreview) {
+                        <img [src]="photoPreview" alt="Aperçu" class="w-full h-full object-cover" />
+                      } @else if (user()?.photoProfile) {
+                        <img
+                          [src]="getMediaUrl(user()?.photoProfile, 'photos')"
+                          alt="Photo"
+                          class="w-full h-full object-cover"
+                        />
+                      } @else {
+                        <i class="fa-solid fa-user text-4xl text-slate-400"></i>
+                      }
+                    </div>
+                    <label
+                      class="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-white flex items-center justify-center cursor-pointer transition-all duration-200 hover:scale-105"
+                    >
+                      <i class="fa-regular fa-camera text-xs"></i>
+                      <input
+                        type="file"
+                        id="photoInput"
+                        accept="image/*"
+                        class="hidden"
+                        (change)="onPhotoSelected($event)"
+                      />
+                    </label>
+                    @if (photoPreview || user()?.photoProfile) {
+                      <button
+                        type="button"
+                        (click)="removePhoto()"
+                        class="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-rose-500 text-white flex items-center justify-center transition-all duration-200 hover:scale-105"
+                      >
+                        <i class="fa-solid fa-xmark text-xs"></i>
+                      </button>
+                    }
+                  </div>
+                </div>
+
+                <!-- Champs formulaire -->
+                <div class="grid sm:grid-cols-2 gap-4">
+                  <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">
+                      Nom complet <span class="text-rose-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      formControlName="fullname"
+                      class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:border-blue-400 focus:ring-1 focus:ring-blue-100 outline-none transition-all bg-slate-50/50"
+                      [class.border-rose-500]="
+                        profileForm.get('fullname')?.invalid && profileForm.get('fullname')?.touched
+                      "
+                    />
+                    @if (
+                      profileForm.get('fullname')?.invalid && profileForm.get('fullname')?.touched
+                    ) {
+                      <p class="text-[11px] text-rose-500 mt-1 flex items-center gap-1">
+                        <i class="fa-solid fa-circle-exclamation text-[9px]"></i> Requis
+                      </p>
+                    }
+                  </div>
+
+                  <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">
+                      Email <span class="text-rose-500">*</span>
+                    </label>
+                    <input
+                      type="email"
+                      formControlName="email"
+                      class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:border-blue-400 focus:ring-1 focus:ring-blue-100 outline-none transition-all bg-slate-50/50"
+                      [class.border-rose-500]="
+                        profileForm.get('email')?.invalid && profileForm.get('email')?.touched
+                      "
+                    />
+                    @if (profileForm.get('email')?.invalid && profileForm.get('email')?.touched) {
+                      <p class="text-[11px] text-rose-500 mt-1 flex items-center gap-1">
+                        <i class="fa-solid fa-circle-exclamation text-[9px]"></i> Email valide requis
+                      </p>
+                    }
+                  </div>
+
+                  <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">Téléphone</label>
+                    <input
+                      type="tel"
+                      formControlName="phone"
+                      class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:border-blue-400 focus:ring-1 focus:ring-blue-100 outline-none transition-all bg-slate-50/50"
+                      placeholder="+33 6 12 34 56 78"
+                    />
+                  </div>
+
+                  <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1.5"
+                      >Nom d'utilisateur</label
+                    >
+                    <input
+                      type="text"
+                      formControlName="username"
+                      class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:border-blue-400 focus:ring-1 focus:ring-blue-100 outline-none transition-all bg-slate-50/50"
+                      placeholder="username"
+                    />
+                  </div>
+                </div>
+
+                <div class="flex justify-end gap-3 pt-4 border-t border-slate-200">
+                  <button
+                    type="button"
+                    (click)="activeTab.set('info')"
+                    class="px-5 py-2 text-sm border border-slate-200 rounded-lg text-slate-600 font-semibold hover:bg-slate-50 transition-all duration-200"
+                  >
+                    Annuler
+                  </button>
+                  <button
+                    type="submit"
+                    [disabled]="isUpdatingProfile() || profileForm.invalid"
+                    class="px-6 py-2 text-sm bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg font-semibold hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 disabled:opacity-50 flex items-center gap-2"
+                  >
+                    @if (isUpdatingProfile()) {
+                      <i class="fa-solid fa-spinner fa-spin"></i>
+                    }
+                    <i class="fa-regular fa-floppy-disk"></i>
+                    Enregistrer
+                  </button>
+                </div>
+              </form>
+            </div>
+          }
+
+          <!-- TAB PASSWORD -->
+          @if (activeTab() === 'password') {
+            <div class="max-w-md mx-auto">
+              <form [formGroup]="passwordForm" (ngSubmit)="changePassword()" class="space-y-5">
+                <div class="bg-blue-50/50 border border-blue-100 rounded-xl p-4">
+                  <div class="flex items-start gap-2">
+                    <i class="fa-solid fa-shield-haltered text-blue-500 text-base mt-0.5"></i>
+                    <div class="text-xs text-blue-800 leading-relaxed">
+                      <strong class="font-bold">Conseil :</strong> mot de passe fort avec au moins 12 caractères.
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <label class="block text-sm font-semibold text-slate-700 mb-1.5">
+                    Mot de passe actuel <span class="text-rose-500">*</span>
+                  </label>
+                  <input
+                    type="password"
+                    formControlName="currentPassword"
+                    class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:border-blue-400 focus:ring-1 focus:ring-blue-100 outline-none transition-all bg-slate-50/50"
+                    placeholder="Entrez votre mot de passe actuel"
+                  />
+                  @if (
+                    passwordForm.get('currentPassword')?.invalid &&
+                    passwordForm.get('currentPassword')?.touched
+                  ) {
+                    <p class="text-[11px] text-rose-500 mt-1 flex items-center gap-1">
+                      <i class="fa-solid fa-circle-exclamation text-[9px]"></i> Requis
+                    </p>
+                  }
+                </div>
+
+                <div>
+                  <label class="block text-sm font-semibold text-slate-700 mb-1.5">
+                    Nouveau mot de passe <span class="text-rose-500">*</span>
+                  </label>
+                  <input
+                    type="password"
+                    formControlName="newPassword"
+                    class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:border-blue-400 focus:ring-1 focus:ring-blue-100 outline-none transition-all bg-slate-50/50"
+                    placeholder="Min. 6 caractères"
+                  />
+                  @if (
+                    passwordForm.get('newPassword')?.invalid &&
+                    passwordForm.get('newPassword')?.touched
+                  ) {
+                    <p class="text-[11px] text-rose-500 mt-1 flex items-center gap-1">
+                      <i class="fa-solid fa-circle-exclamation text-[9px]"></i> Minimum 6 caractères
+                    </p>
+                  }
+                </div>
+
+                <div>
+                  <label class="block text-sm font-semibold text-slate-700 mb-1.5">
+                    Confirmer <span class="text-rose-500">*</span>
+                  </label>
+                  <input
+                    type="password"
+                    formControlName="confirmPassword"
+                    class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:border-blue-400 focus:ring-1 focus:ring-blue-100 outline-none transition-all bg-slate-50/50"
+                    placeholder="Confirmez votre nouveau mot de passe"
+                  />
+                </div>
+
+                @if (
+                  passwordForm.errors?.['mismatch'] && passwordForm.get('confirmPassword')?.touched
+                ) {
+                  <div class="bg-rose-50/80 border border-rose-100 rounded-lg p-3">
+                    <p class="text-xs text-rose-600 flex items-center gap-2">
+                      <i class="fa-solid fa-triangle-exclamation text-xs"></i> Mots de passe différents
+                    </p>
+                  </div>
+                }
+
+                <div class="flex justify-end gap-3 pt-4 border-t border-slate-200">
+                  <button
+                    type="button"
+                    (click)="activeTab.set('info')"
+                    class="px-5 py-2 text-sm border border-slate-200 rounded-lg text-slate-600 font-semibold hover:bg-slate-50 transition-all duration-200"
+                  >
+                    Annuler
+                  </button>
+                  <button
+                    type="submit"
+                    [disabled]="passwordForm.invalid || isChangingPassword()"
+                    class="px-6 py-2 text-sm bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg font-semibold hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 disabled:opacity-50 flex items-center gap-2"
+                  >
+                    @if (isChangingPassword()) {
+                      <i class="fa-solid fa-spinner fa-spin"></i>
+                    }
+                    <i class="fa-solid fa-key"></i>
+                    Changer
+                  </button>
+                </div>
+              </form>
+            </div>
+          }
+        </div>
+
+    =
+      </div>
+    }
+  </div>
+</div>

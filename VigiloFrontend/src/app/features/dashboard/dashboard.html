@@ -1,0 +1,410 @@
+<!-- src/app/pages/dashboard/dashboard.component.html -->
+
+<!-- 
+  On remplace le fond fixe par des classes dark 
+  et on garde le gradient seulement en mode clair
+-->
+<div
+  class="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30 dark:bg-gradient-to-br dark:from-slate-900 dark:via-slate-800 dark:to-slate-900"
+>
+  <div class="container mx-auto px-4 py-6 md:py-8">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+      <div>
+        <h1
+          class="text-3xl md:text-4xl font-bold bg-gradient-to-r from-slate-900 to-blue-600 bg-clip-text text-transparent dark:from-slate-100 dark:to-blue-400"
+        >
+          Tableau de bord
+        </h1>
+        <p class="text-slate-500 dark:text-slate-400 mt-1">{{ getWelcomeMessage() }}</p>
+      </div>
+
+      <div class="flex gap-3">
+        <!-- Period Filter -->
+        <form [formGroup]="periodForm">
+          <select
+            formControlName="period"
+            class="px-4 py-2 bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all text-slate-700 dark:text-slate-200"
+          >
+            @for (option of periodOptions; track option.value) {
+              <option [value]="option.value">{{ option.label }}</option>
+            }
+          </select>
+        </form>
+
+        <button
+          (click)="refreshStats()"
+          class="px-4 py-2 bg-white dark:bg-slate-800 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 flex items-center gap-2 text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400"
+          [disabled]="loading"
+        >
+          <i class="fa-solid fa-rotate-right" [class.fa-spin]="loading"></i>
+          <span>Actualiser</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    @if (loading) {
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        @for (i of [1, 2, 3, 4]; track i) {
+          <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm p-6 animate-pulse">
+            <div class="flex items-center justify-between">
+              <div class="h-12 w-12 bg-gray-200 dark:bg-slate-700 rounded-xl"></div>
+              <div class="h-8 w-20 bg-gray-200 dark:bg-slate-700 rounded"></div>
+            </div>
+            <div class="h-4 w-32 bg-gray-200 dark:bg-slate-700 rounded mt-4"></div>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Error State -->
+    @if (error && !loading) {
+      <div
+        class="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-2xl p-6 text-center"
+      >
+        <i class="fa-solid fa-circle-exclamation text-4xl text-red-500 dark:text-red-400 mb-3"></i>
+        <p class="text-red-600 dark:text-red-400">{{ error }}</p>
+        <button
+          (click)="refreshStats()"
+          class="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
+        >
+          Réessayer
+        </button>
+      </div>
+    }
+
+    <!-- Dashboard Content -->
+    @if (!loading && !error && dashboardData) {
+      <!-- ==================== -->
+      <!-- SUPER ADMIN DASHBOARD -->
+      <!-- ==================== -->
+      @if (isSuperAdmin()) {
+        <!-- On crée une référence locale typée via le getter du TS -->
+        @let adminCharts = superAdminCharts;
+
+        <!-- KPI Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm p-6">
+            <div class="flex items-center justify-between mb-4">
+              <div class="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center">
+                <i class="fa-solid fa-building text-white text-xl"></i>
+              </div>
+              <span class="text-2xl font-bold text-slate-900 dark:text-white">{{
+                animatedStats.totalCompanies || 0
+              }}</span>
+            </div>
+            <p class="text-slate-500 dark:text-slate-400">Entreprises</p>
+          </div>
+
+          <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm p-6">
+            <div class="flex items-center justify-between mb-4">
+              <div class="w-12 h-12 bg-purple-500 rounded-xl flex items-center justify-center">
+                <i class="fa-solid fa-chart-line text-white text-xl"></i>
+              </div>
+              <span class="text-2xl font-bold text-slate-900 dark:text-white">{{
+                formatCurrency(animatedStats.totalRevenue || 0)
+              }}</span>
+            </div>
+            <p class="text-slate-500 dark:text-slate-400">Revenus totaux</p>
+          </div>
+
+          <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm p-6">
+            <div class="flex items-center justify-between mb-4">
+              <div class="w-12 h-12 bg-green-500 rounded-xl flex items-center justify-center">
+                <i class="fa-solid fa-file-alt text-white text-xl"></i>
+              </div>
+              <span class="text-2xl font-bold text-slate-900 dark:text-white">{{
+                animatedStats.totalLogs || 0
+              }}</span>
+            </div>
+            <p class="text-slate-500 dark:text-slate-400">Logs totaux</p>
+          </div>
+
+          <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm p-6">
+            <div class="flex items-center justify-between mb-4">
+              <div class="w-12 h-12 bg-orange-500 rounded-xl flex items-center justify-center">
+                <i class="fa-solid fa-tags text-white text-xl"></i>
+              </div>
+              <span class="text-2xl font-bold text-slate-900 dark:text-white">{{
+                animatedStats.totalPlans || 0
+              }}</span>
+            </div>
+            <p class="text-slate-500 dark:text-slate-400">Plans actifs</p>
+          </div>
+        </div>
+
+        <!-- Charts -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <!-- Revenue Chart -->
+          @if (adminCharts?.revenueByDay !== undefined) {
+            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm p-6">
+              <h3 class="font-semibold text-slate-900 dark:text-white mb-4">Revenus par jour</h3>
+              <div class="h-64">
+                <canvas #revenueLineChart></canvas>
+              </div>
+              @if (!adminCharts?.revenueByDay?.length) {
+                <div class="text-center text-slate-400 dark:text-slate-500 mt-4">
+                  <i class="fa-solid fa-chart-line text-2xl mb-2"></i>
+                  <p>Aucune donnée de revenus disponible</p>
+                </div>
+              }
+            </div>
+          }
+
+          <!-- Plans by status -->
+          @if (adminCharts?.plansByStatus !== undefined) {
+            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm p-6">
+              <h3 class="font-semibold text-slate-900 dark:text-white mb-4">Plans par statut</h3>
+              <div class="h-64">
+                <canvas #plansPieChart></canvas>
+              </div>
+              @if (!adminCharts?.plansByStatus?.length) {
+                <div class="text-center text-slate-400 dark:text-slate-500 mt-4">
+                  <i class="fa-solid fa-chart-pie text-2xl mb-2"></i>
+                  <p>Aucune donnée de plans disponible</p>
+                </div>
+              }
+            </div>
+          }
+
+          <!-- Logs chart -->
+          @if (adminCharts?.logsByDay !== undefined) {
+            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm p-6 lg:col-span-2">
+              <h3 class="font-semibold text-slate-900 dark:text-white mb-4">Évolution des logs</h3>
+              <div class="h-64">
+                <canvas #logsLineChart></canvas>
+              </div>
+              @if (!adminCharts?.logsByDay?.length) {
+                <div class="text-center text-slate-400 dark:text-slate-500 mt-4">
+                  <i class="fa-solid fa-chart-line text-2xl mb-2"></i>
+                  <p>Aucune donnée de logs disponible</p>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      }
+
+      <!-- ==================== -->
+      <!-- COMPANY ADMIN DASHBOARD -->
+      <!-- ==================== -->
+      @if (isCompanyAdmin()) {
+        @let companyCharts = companyAdminCharts;
+
+        <!-- KPI Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm p-6">
+            <div class="flex items-center justify-between mb-4">
+              <div class="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center">
+                <i class="fa-solid fa-users text-white text-xl"></i>
+              </div>
+              <span class="text-2xl font-bold text-slate-900 dark:text-white">{{
+                animatedStats.totalAgents || 0
+              }}</span>
+            </div>
+            <p class="text-slate-500 dark:text-slate-400">Agents</p>
+          </div>
+
+          <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm p-6">
+            <div class="flex items-center justify-between mb-4">
+              <div class="w-12 h-12 bg-green-500 rounded-xl flex items-center justify-center">
+                <i class="fa-solid fa-building text-white text-xl"></i>
+              </div>
+              <span class="text-2xl font-bold text-slate-900 dark:text-white">{{
+                animatedStats.totalSites || 0
+              }}</span>
+            </div>
+            <p class="text-slate-500 dark:text-slate-400">Sites</p>
+          </div>
+
+          <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm p-6">
+            <div class="flex items-center justify-between mb-4">
+              <div class="w-12 h-12 bg-red-500 rounded-xl flex items-center justify-center">
+                <i class="fa-solid fa-exclamation-triangle text-white text-xl"></i>
+              </div>
+              <span class="text-2xl font-bold text-slate-900 dark:text-white">{{
+                animatedStats.totalIncidents || 0
+              }}</span>
+            </div>
+            <p class="text-slate-500 dark:text-slate-400">Incidents</p>
+          </div>
+
+          <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm p-6">
+            <div class="flex items-center justify-between mb-4">
+              <div class="w-12 h-12 bg-purple-500 rounded-xl flex items-center justify-center">
+                <i class="fa-solid fa-tasks text-white text-xl"></i>
+              </div>
+              <span class="text-2xl font-bold text-slate-900 dark:text-white">{{
+                animatedStats.activeAffectations || 0
+              }}</span>
+            </div>
+            <p class="text-slate-500 dark:text-slate-400">Affectations actives</p>
+          </div>
+        </div>
+
+        <!-- Charts -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          @if (companyCharts?.scansByDay !== undefined) {
+            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm p-6">
+              <h3 class="font-semibold text-slate-900 dark:text-white mb-4">Évolution des scans</h3>
+              <div class="h-64">
+                <canvas #scansLineChart></canvas>
+              </div>
+              @if (!companyCharts?.scansByDay?.length) {
+                <div class="text-center text-slate-400 dark:text-slate-500 mt-4">
+                  <i class="fa-solid fa-chart-line text-2xl mb-2"></i>
+                  <p>Aucune donnée de scans disponible</p>
+                </div>
+              }
+            </div>
+          }
+
+          @if (companyCharts?.affectationsByStatus !== undefined) {
+            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm p-6">
+              <h3 class="font-semibold text-slate-900 dark:text-white mb-4">
+                Affectations par statut
+              </h3>
+              <div class="h-64">
+                <canvas #affectationsPieChart></canvas>
+              </div>
+              @if (!companyCharts?.affectationsByStatus?.length) {
+                <div class="text-center text-slate-400 dark:text-slate-500 mt-4">
+                  <i class="fa-solid fa-chart-pie text-2xl mb-2"></i>
+                  <p>Aucune donnée d'affectations disponible</p>
+                </div>
+              }
+            </div>
+          }
+
+          @if (companyCharts?.incidentsByDay !== undefined) {
+            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm p-6 lg:col-span-2">
+              <h3 class="font-semibold text-slate-900 dark:text-white mb-4">
+                Évolution des incidents
+              </h3>
+              <div class="h-64">
+                <canvas #incidentsLineChart></canvas>
+              </div>
+              @if (!companyCharts?.incidentsByDay?.length) {
+                <div class="text-center text-slate-400 dark:text-slate-500 mt-4">
+                  <i class="fa-solid fa-chart-line text-2xl mb-2"></i>
+                  <p>Aucune donnée d'incidents disponible</p>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      }
+
+      <!-- ==================== -->
+      <!-- AGENT DASHBOARD -->
+      <!-- ==================== -->
+      @if (isAgent()) {
+        @let agentChartsData = agentCharts;
+
+        <!-- KPI Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm p-6">
+            <div class="flex items-center justify-between mb-4">
+              <div class="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center">
+                <i class="fa-solid fa-qrcode text-white text-xl"></i>
+              </div>
+              <span class="text-2xl font-bold text-slate-900 dark:text-white">{{
+                animatedStats.myScans || 0
+              }}</span>
+            </div>
+            <p class="text-slate-500 dark:text-slate-400">Mes scans</p>
+          </div>
+
+          <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm p-6">
+            <div class="flex items-center justify-between mb-4">
+              <div class="w-12 h-12 bg-red-500 rounded-xl flex items-center justify-center">
+                <i class="fa-solid fa-exclamation-triangle text-white text-xl"></i>
+              </div>
+              <span class="text-2xl font-bold text-slate-900 dark:text-white">{{
+                animatedStats.myIncidents || 0
+              }}</span>
+            </div>
+            <p class="text-slate-500 dark:text-slate-400">Mes incidents</p>
+          </div>
+
+          <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm p-6">
+            <div class="flex items-center justify-between mb-4">
+              <div class="w-12 h-12 bg-purple-500 rounded-xl flex items-center justify-center">
+                <i class="fa-solid fa-tasks text-white text-xl"></i>
+              </div>
+              <span class="text-2xl font-bold text-slate-900 dark:text-white">{{
+                animatedStats.myAffectations || 0
+              }}</span>
+            </div>
+            <p class="text-slate-500 dark:text-slate-400">Mes affectations</p>
+          </div>
+
+          <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm p-6">
+            <div class="flex items-center justify-between mb-4">
+              <div class="w-12 h-12 bg-green-500 rounded-xl flex items-center justify-center">
+                <i class="fa-solid fa-play-circle text-white text-xl"></i>
+              </div>
+              <span class="text-2xl font-bold text-slate-900 dark:text-white">{{
+                animatedStats.activeAffectations || 0
+              }}</span>
+            </div>
+            <p class="text-slate-500 dark:text-slate-400">Affectations actives</p>
+          </div>
+        </div>
+
+        <!-- Charts -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          @if (agentChartsData?.myScansByDay !== undefined) {
+            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm p-6">
+              <h3 class="font-semibold text-slate-900 dark:text-white mb-4">Mes scans par jour</h3>
+              <div class="h-64">
+                <canvas #myScansLineChart></canvas>
+              </div>
+              @if (!agentChartsData?.myScansByDay?.length) {
+                <div class="text-center text-slate-400 dark:text-slate-500 mt-4">
+                  <i class="fa-solid fa-chart-line text-2xl mb-2"></i>
+                  <p>Aucune donnée de scans disponible</p>
+                </div>
+              }
+            </div>
+          }
+
+          @if (agentChartsData?.myAffectationsStatus !== undefined) {
+            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm p-6">
+              <h3 class="font-semibold text-slate-900 dark:text-white mb-4">
+                Mes affectations par statut
+              </h3>
+              <div class="h-64">
+                <canvas #myAffectationsPieChart></canvas>
+              </div>
+              @if (!agentChartsData?.myAffectationsStatus?.length) {
+                <div class="text-center text-slate-400 dark:text-slate-500 mt-4">
+                  <i class="fa-solid fa-chart-pie text-2xl mb-2"></i>
+                  <p>Aucune donnée d'affectations disponible</p>
+                </div>
+              }
+            </div>
+          }
+
+          @if (agentChartsData?.myIncidentsByDay !== undefined) {
+            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm p-6 lg:col-span-2">
+              <h3 class="font-semibold text-slate-900 dark:text-white mb-4">
+                Mes incidents par jour
+              </h3>
+              <div class="h-64">
+                <canvas #myIncidentsLineChart></canvas>
+              </div>
+              @if (!agentChartsData?.myIncidentsByDay?.length) {
+                <div class="text-center text-slate-400 dark:text-slate-500 mt-4">
+                  <i class="fa-solid fa-chart-line text-2xl mb-2"></i>
+                  <p>Aucune donnée d'incidents disponible</p>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      }
+    }
+  </div>
+</div>
